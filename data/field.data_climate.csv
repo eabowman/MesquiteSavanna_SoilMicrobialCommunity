@@ -1,0 +1,25 @@
+plot,block,disturbance,disturbance.date,vegetation.type,invasion,elevation.m,pasture,evidence.of.cattle,Notes,MAT,MAP
+1DGN,1,disturbed,2004,grassland,invaded,NA,el.salto,no,,22.26499751,649.3679155
+1DMN,1,disturbed,2004,motte,invaded,NA,el.salto,yes,cattle bedding down,22.26445191,649.4969875
+1DGL,1,disturbed,2004,grassland,uninvaded,NA,el.salto,no,,22.26459273,649.4560886
+1DML,1,disturbed,2004,motte,uninvaded,NA,el.salto,no,"did not use numbers (sampled randomly moving in from sides); some guinea grass around (i.e. not entirely uninvaded, but sampled to avoid guinea)",22.25153269,651.1268
+1UGN,1,undisturbed,>1980,grassland,invaded,NA,el.salto,no,20 x 5 m plot; see picture,22.26232013,649.6672307
+1UMN,1,undisturbed,>1980,motte,invaded,NA,el.salto,yes,minimal evidence of cattle bedding down (5%),22.26560014,649.10752
+1UGL,1,undisturbed,>1980,grassland,uninvaded,NA,el.salto,no,,22.26258013,649.5778874
+1UML,1,undisturbed,>1980,motte,uninvaded,NA,el.salto,no,,22.26548014,649.119616
+3DGN,3,disturbed,1995,grassland,invaded,NA,finner.crocker,no,,22.26579124,655.0976
+3DMN,3,disturbed,1995,motte,invaded,NA,finner.crocker,,did not use numbers (sampled randomly moving in from sides),22.26569091,655.0952
+3DGL,3,disturbed,1995,grassland,uninvaded,NA,finner.crocker,,,22.26500049,655.1792
+3UGN,3,undisturbed,>1980,grassland,invaded,NA,finner.crocker,no,,22.28185551,652.7037888
+3UMN,3,undisturbed,>1980,motte,invaded,NA,finner.crocker,yes,cattle bedding down; did not use numbers (sampled randomly moving in from sides),22.27828944,653.4302296
+3UGL,3,undisturbed,>1980,grassland,uninvaded,NA,finner.crocker,yes,cattle bedding down,22.28179913,652.7427264
+3UML,3,undisturbed,>1980,motte,uninvaded,NA,finner.crocker,no,did not use numbers (sampled randomly moving in from sides),22.27787344,653.5109357
+2DGN,2,disturbed,1998,grassland,invaded,NA,muchos.hombres,no,,22.23426744,648.4247243
+2DMN,2,disturbed,1998,motte,invaded,NA,muchos.hombres,yes,did not use numbers (sampled randomly moving in from sides); dense motte; evidence of cattle bedding down; guinea grass has stolon growth; no guinea in the middle of motte,22.25266105,648.9599723
+2DGL,2,disturbed,1998,grassland,uninvaded,NA,muchos.hombres,no,,22.25036079,648.9143248
+2DML,2,disturbed,1998,motte,uninvaded,NA,muchos.hombres,no,"did not use numbers (sampled randomly moving in from sides); some guinea grass around (i.e. not entirely uninvaded, but sampled to avoid guinea)",22.24805065,649.1039018
+3DML,3,disturbed,1998,motte,uninvaded,NA,muchos.hombres,,"did not use numbers (sampled randomly moving in from sides); some guinea grass around (i.e. not entirely uninvaded, but sampled to avoid guinea)",22.25833344,648.5637395
+2UGN,2,undisturbed,>1943,grassland,invaded,NA,muchos.hombres,no,5 X 15 m plot; actual invasion along 15 m transect; hidden legumes within transect,22.25122927,648.9188512
+2UMN,2,undisturbed,>1943,motte,invaded,NA,muchos.hombres,yes,cattle bedding down; soil compact,22.23472002,648.4269894
+2UGL,2,undisturbed,>1943,grassland,uninvaded,NA,muchos.hombres,no,,22.23405406,648.4943166
+2UML,2,undisturbed,>1943,motte,uninvaded,NA,muchos.hombres,no,20 X 5 m plot,22.23484602,648.477268
