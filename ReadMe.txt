@@ -1,4 +1,4 @@
-The folders here contain R scripts and data files for the article "Biphasic savanna paralleled in belowground soil abiotic and biotic environment". Written by Elizabeth A. Bowman, A. Peyton Smith, Aaron C. Rhodes, Robert M. Plowes, and Lawrence E. Gilbert.
+The folders here contain R scripts and data files for the article "Soil microbial assembly mirrors savanna phase separation amid plant invasion and soil disturbance.". Written by Elizabeth A. Bowman, A. Peyton Smith, Aaron C. Rhodes, Robert M. Plowes, and Lawrence E. Gilbert.
 
 
 Elizabeth A. Bowman is the author for correspondence on this article. 
@@ -26,9 +26,14 @@ Explanation of each script is below.
 ------------------------------------------------------------------------------------------
 
 Loadlibraries.R: Loads all libraries used in analyses. The installation of each library is commented out.
-0.analysisPlantCommunityClimate.R: Analyses associated with the plant community and climate variables (mean annual precipitation, MAP, and mean annual temperature, MAT) downloaded from WorldClim.
-1.analysisWoodlandGrassland.R: Analyses across the savanna including both grasslands and woody patches. (Fig. 1)
-2.analysisGrasslands.R: Analyses conducted on the grassland subset of data. (Fig. 2 and fig. 4a)3.analysisWoodyPatches.R: Analyses conducted on the woody patch subset of data. (Fig. 3 and fig. 4b)
+
+0.analysisPlantCommunityClimate.R: Analyses associated with the plant community and climate variables (mean annual precipitation, MAP, and mean annual temperature, MAT) downloaded from WorldClim.
+
+1.analysisWoodlandGrassland.R: Analyses across the savanna including both grasslands and woody patches. (Fig. 1)
+
+2.analysisGrasslands.R: Analyses conducted on the grassland subset of data. (Fig. 2 and fig. 4a)
+
+3.analysisWoodyPatches.R: Analyses conducted on the woody patch subset of data. (Fig. 3 and fig. 4b)
 
 4.analysisTaxonomy.R: Taxonomic analyses of bacterial and fungal soil communities across the savanna. (Fig.5
 
