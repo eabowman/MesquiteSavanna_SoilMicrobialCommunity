@@ -94,26 +94,24 @@ tax.full %>%
   labs(fill = 'Phylum') +
   scale_fill_brewer(palette = 'Spectral', direction = -1) +
   theme_classic() +
-  theme(axis.text.y = element_text(size = 12, color = 'black'),
-        axis.text.x = element_text(size = 12, color = 'black',
+  theme(axis.text.y = element_text(size = 10, color = 'black'),
+        axis.text.x = element_text(size = 10, color = 'black',
                                    # angle = 45, 
                                    # hjust = 1
         ),
-        axis.title = element_text(size = 14),
+        axis.title = element_text(size = 12),
         #strip.text.x = element_blank(),
         #legend.position = 'none',
         aspect.ratio = 5/1,
         legend.text = element_text(size = 10),
-        legend.title = element_text(size = 12),
+        legend.title = element_text(size = 10),
+        legend.key.height = unit(0.35, "cm"),
+        legend.key.width  = unit(0.35, "cm"),
         panel.background = element_rect(fill = "transparent", color = NA),
         plot.background = element_rect(fill = "transparent", color = NA),
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank()
-  )
-
-ggsave('figures/Fig5a.tiff',
-       plot = last_plot(), width = 4, height = 5,
-       units = 'in', device = 'tiff')
+  ) -> Fig.5a
 
 ### Vegetation type: Ascomycota class -----
 # Chi-square
@@ -151,24 +149,22 @@ tax.full %>%
   labs(fill = "Ascomycota\nClass") +
   scale_fill_brewer(palette = 'Blues') +
   theme_classic() +
-  theme(axis.text.y = element_text(size = 12, color = 'black'),
-        axis.text.x = element_text(size = 12, color = 'black',
+  theme(axis.text.y = element_text(size = 10, color = 'black'),
+        axis.text.x = element_text(size = 10, color = 'black',
                                    # angle = 45, hjust = 1
         ),
-        axis.title = element_text(size = 14),
+        axis.title = element_text(size = 12),
         #strip.text.x = element_blank(),
         #legend.position = 'none',
         aspect.ratio = 5/1,
         legend.text = element_text(size = 10),
-        legend.title = element_text(size = 12),
+        legend.title = element_text(size = 10),
+        legend.key.height = unit(0.35, "cm"),
+        legend.key.width  = unit(0.35, "cm"),
         panel.background = element_rect(fill = "transparent", color = NA),
         plot.background = element_rect(fill = "transparent", color = NA),
         panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank())
-
-ggsave('figures/Fig5b.tiff',
-       plot = last_plot(), width = 4, height = 5,
-       units = 'in', device = 'tiff')
+        panel.grid.minor = element_blank()) -> Fig.5b
 
 ### Vegetation type: Basidiomycota order ----
 # Chi-square
@@ -206,24 +202,22 @@ tax.full %>%
   labs(fill = "Basidiomycota\norder") +
   scale_fill_brewer(palette = 'PRGn') +
   theme_classic() +
-  theme(axis.text.y = element_text(size = 12, color = 'black'),
-        axis.text.x = element_text(size = 12, color = 'black',
+  theme(axis.text.y = element_text(size = 10, color = 'black'),
+        axis.text.x = element_text(size = 10, color = 'black',
                                    # angle = 45, hjust = 1
         ),
-        axis.title = element_text(size = 14),
+        axis.title = element_text(size = 12),
         #strip.text.x = element_blank(),
         #legend.position = 'none',
         aspect.ratio = 5/1,
         legend.text = element_text(size = 10),
-        legend.title = element_text(size = 12),
+        legend.title = element_text(size = 10),
+        legend.key.height = unit(0.35, "cm"),
+        legend.key.width  = unit(0.35, "cm"),
         panel.background = element_rect(fill = "transparent", color = NA),
         plot.background = element_rect(fill = "transparent", color = NA),
         panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank())
-
-ggsave('figures/Fig5c.tiff',
-       plot = last_plot(),
-       width = 4, height = 5, units = 'in', device = 'tiff')
+        panel.grid.minor = element_blank()) -> Fig.5c
 
 # summary of Agaricales by genus
 tax.full %>%
@@ -243,14 +237,11 @@ tax.full %>%
   mutate(count = 1) %>%
   group_by(vegetation.type, genus) %>%
   summarise(Otu.count = sum(count)) %>%
-  spread(key = genus, value = Otu.count) -> chi.AM.veg
+  spread(key = genus, value = Otu.count, fill = 0) -> chi.AM.veg
 # change to data frame and add vegetation type as row names
 chi.AM.veg <- as.data.frame(chi.AM.veg)
 rownames(chi.AM.veg) <- chi.AM.veg$vegetation.type
-chi.AM.veg <- chi.AM.veg[-1]
-
-# change NAs to 0s
-chi.AM.veg[is.na(chi.AM.veg)] <- 0
+chi.AM.veg <- chi.AM.veg[-c(1)]
 
 chisq.test(chi.AM.veg)
 
@@ -264,30 +255,27 @@ tax.full %>%
   ggplot(aes(x = vegetation.type, 
              fill = factor(genus))) +
   geom_bar(position = 'fill') +
-  # facet_grid(. ~ vegetation.type * disturbance) +
   xlab('') +
   ylab('Relative OTU abundance') +
   labs(fill = "Glomeromycotina\ngenus") +
   scale_fill_brewer(palette = 'Oranges') +
   theme_classic() +
-  theme(axis.text.y = element_text(size = 12, color = 'black'),
-        axis.text.x = element_text(size = 12, color = 'black',
+  theme(axis.text.y = element_text(size = 10, color = 'black'),
+        axis.text.x = element_text(size = 10, color = 'black',
                                    # angle = 45, hjust = 1
         ),
-        axis.title = element_text(size = 14),
+        axis.title = element_text(size = 12),
         #strip.text.x = element_blank(),
         #legend.position = 'none',
         aspect.ratio = 5/1,
         legend.text = element_text(size = 10),
-        legend.title = element_text(size = 12),
+        legend.title = element_text(size = 10),
+        legend.key.height = unit(0.35, "cm"),
+        legend.key.width  = unit(0.35, "cm"),
         panel.background = element_rect(fill = "transparent", color = NA),
         plot.background = element_rect(fill = "transparent", color = NA),
         panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank())
-
-ggsave('figures/Fig5d.tiff',
-       plot = last_plot(), width = 4, height = 5,
-       units = 'in', device = 'tiff')
+        panel.grid.minor = element_blank()) -> Fig.5d
 
 ### Species richness and read abundance of Glomeromycotina ----
 # isolate OTUs identified to Glomeromycotina
@@ -340,24 +328,20 @@ ggplot(glomero.data, aes(x = vegetation.type,
   ylab("OTU richness") +
   theme_classic() +
   scale_fill_manual(values = c("#905971", "#F1BB83")) +
-  theme(axis.text.y = element_text(size = 12, color = 'black'),
-        axis.text.x = element_text(size = 12, color = 'black',
+  theme(axis.text.y = element_text(size = 10, color = 'black'),
+        axis.text.x = element_text(size = 10, color = 'black',
                                    # angle = 45, hjust = 1
         ),
-        axis.title = element_text(size = 14),
+        axis.title = element_text(size = 12),
         #strip.text.x = element_blank(),
         legend.position = 'none',
         aspect.ratio = 5/1,
         legend.text = element_text(size = 10),
-        legend.title = element_text(size = 12),
+        legend.title = element_text(size = 10),
         panel.background = element_rect(fill = "transparent", color = NA),
         plot.background = element_rect(fill = "transparent", color = NA),
         panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank())
-
-ggsave('figures/Fig5e.tiff',
-       plot = last_plot(), width = 2, height = 5, units = 'in',
-       device = 'tiff')
+        panel.grid.minor = element_blank()) -> Fig.5e
 
 #### Abundance ----
 # assess normality
@@ -380,24 +364,20 @@ ggplot(glomero.data, aes(x = vegetation.type,
   ylim(0, 100) +
   scale_fill_manual(values = c("#905971", "#F1BB83")) +
   theme_classic() +
-  theme(axis.text.y = element_text(size = 12, color = 'black'),
-        axis.text.x = element_text(size = 12, color = 'black',
+  theme(axis.text.y = element_text(size = 10, color = 'black'),
+        axis.text.x = element_text(size = 10, color = 'black',
                                    # angle = 45, hjust = 1
         ),
-        axis.title = element_text(size = 14),
+        axis.title = element_text(size = 12),
         #strip.text.x = element_blank(),
         legend.position = 'none',
         aspect.ratio = 5/1,
         legend.text = element_text(size = 10),
-        legend.title = element_text(size = 12),
+        legend.title = element_text(size = 10),
         panel.background = element_rect(fill = "transparent", color = NA),
         plot.background = element_rect(fill = "transparent", color = NA),
         panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank())
-
-ggsave('figures/Fig5f.tiff',
-       plot = last_plot(), width = 2, height = 5, units = 'in',
-       device = 'tiff')
+        panel.grid.minor = element_blank()) -> Fig.5f
 
 #--------------------------------------------------------------#
 # Bacteria ----
@@ -410,7 +390,7 @@ bac.soil.data %>%
   gather(key = Otu, value = read.abund, -block, -disturbance, -vegetation.type, -invasion) %>%
   filter(read.abund > 10) %>%
   left_join(., qiime.data, by = 'Otu') %>%
-  dplyr::select(-Taxon, -Sequence) %>%
+  dplyr::select(-Taxon) %>%
   filter(Confidence > 0.7) -> tax.full
 
 # make read.abund column numeric
@@ -489,22 +469,22 @@ tax.full %>%
   labs(fill = "Phylum") +
   scale_fill_manual(values = mycolors) +
   theme_classic() +
-  theme(axis.text.y = element_text(size = 12, color = 'black'),
-        axis.text.x = element_text(size = 12, color = 'black',
+  theme(axis.text.y = element_text(size = 10, color = 'black'),
+        axis.text.x = element_text(size = 10, color = 'black',
                                    # angle = 45, hjust = 1
         ),
-        axis.title = element_text(size = 14),
+        axis.title = element_text(size = 12),
         strip.text.x = element_blank(),
-        legend.position = 'none',
+        legend.position = 'right',
+        legend.text = element_text(size = 10),
+        legend.title = element_text(size = 10),
+        legend.key.height = unit(0.35, "cm"),
+        legend.key.width  = unit(0.35, "cm"),
         aspect.ratio = 5/1,
         panel.background = element_rect(fill = "transparent", color = NA),
         plot.background = element_rect(fill = "transparent", color = NA),
         panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank())
-
-ggsave('figures/Fig5g.tiff',
-       plot = last_plot(), width = 2, height = 5, units = 'in',
-       device = 'tiff')
+        panel.grid.minor = element_blank()) -> Fig.5g
 
 ### Actinobacteriota ----
 # Isolate phyla with greater than 250 reads, filter out low abundance phyla
@@ -541,22 +521,22 @@ tax.full %>%
   labs(fill = "Actinobacteriota\norder") +
   scale_fill_manual(values = mycolors) +
   theme_classic() +
-  theme(axis.text.y = element_text(size = 12, color = 'black'),
-        axis.text.x = element_text(size = 12, color = 'black',
+  theme(axis.text.y = element_text(size = 10, color = 'black'),
+        axis.text.x = element_text(size = 10, color = 'black',
                                    # angle = 45, hjust = 1
         ),
-        axis.title = element_text(size = 14),
+        axis.title = element_text(size = 12),
         strip.text.x = element_blank(),
-        # legend.position = 'none',
+        legend.position = 'right',
+        legend.text = element_text(size = 10),
+        legend.title = element_text(size = 10),
+        legend.key.height = unit(0.35, "cm"),
+        legend.key.width  = unit(0.35, "cm"),
         aspect.ratio = 5/1,
         panel.background = element_rect(fill = "transparent", color = NA),
         plot.background = element_rect(fill = "transparent", color = NA),
         panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank())
-
-ggsave('figures/Fig5h.tiff',
-       plot = last_plot(), width = 4, height = 5, units = 'in',
-       device = 'tiff')
+        panel.grid.minor = element_blank()) -> Fig.5h
 
 ### Cyanobacteria ----
 ### Isolate OTU assigned to phylum Cyanobacteria
@@ -611,24 +591,22 @@ tax.full %>%
   labs(fill = "Cyanobacteria\nfamily") +
   scale_fill_manual(values = mycolors) +
   theme_classic() +
-  theme(axis.text.y = element_text(size = 12, color = 'black'),
-        axis.text.x = element_text(size = 12, color = 'black',
+  theme(axis.text.y = element_text(size = 10, color = 'black'),
+        axis.text.x = element_text(size = 10, color = 'black',
                                    # angle = 45, hjust = 1
         ),
-        axis.title = element_text(size = 14),
+        axis.title = element_text(size = 12),
         strip.text.x = element_blank(),
         legend.position = 'right',
         aspect.ratio = 5/1,
         legend.text = element_text(size = 10),
-        legend.title = element_text(size = 12),
+        legend.title = element_text(size = 10),
+        legend.key.height = unit(0.35, "cm"),
+        legend.key.width  = unit(0.35, "cm"),
         panel.background = element_rect(fill = "transparent", color = NA),
         plot.background = element_rect(fill = "transparent", color = NA),
         panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank())
-
-ggsave('figures/Fig5i.tiff',
-       plot = last_plot(), width = 4, height = 5,
-       units = 'in', device = 'tiff')
+        panel.grid.minor = element_blank()) -> Fig.5i
 
 ### Species richness and read abundance of Cyanobacteria ----
 # Diversity calculation is odd, instead will focus on species richness and abundance
@@ -661,24 +639,20 @@ ggplot(cyano.data, aes(x = vegetation.type,
   ylab('OTU richness') +
   scale_fill_manual(values = c("#905971", "#F1BB83")) +
   theme_classic() +
-  theme(axis.text.y = element_text(size = 12, color = 'black'),
-        axis.text.x = element_text(size = 12, color = 'black',
+  theme(axis.text.y = element_text(size = 10, color = 'black'),
+        axis.text.x = element_text(size = 10, color = 'black',
                                    # angle = 45, hjust = 1
         ),
-        axis.title = element_text(size = 14),
+        axis.title = element_text(size = 12),
         #strip.text.x = element_blank(),
         legend.position = 'none',
         aspect.ratio = 5/1,
         legend.text = element_text(size = 10),
-        legend.title = element_text(size = 12),
+        legend.title = element_text(size = 10),
         panel.background = element_rect(fill = "transparent", color = NA),
         plot.background = element_rect(fill = "transparent", color = NA),
         panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank())
-
-ggsave('figures/Fig5j.tiff',
-       plot = last_plot(), width = 2, height = 5,
-       units = 'in', device = 'tiff')
+        panel.grid.minor = element_blank()) -> Fig.5j
 
 #### Read abundance -----
 kruskal.test(abundance ~ vegetation.type, data = cyano.data)
@@ -695,22 +669,35 @@ ggplot(cyano.data, aes(x = vegetation.type,
   ylim(0, 200) +
   scale_fill_manual(values = c("#905971", "#F1BB83")) +
   theme_classic() +
-  theme(axis.text.y = element_text(size = 12, color = 'black'),
-        axis.text.x = element_text(size = 12, color = 'black',
+ theme(axis.text.y = element_text(size = 10, color = 'black'),
+        axis.text.x = element_text(size = 10, color = 'black',
                                    # angle = 45, hjust = 1
         ),
-        axis.title = element_text(size = 14),
+        axis.title = element_text(size = 12),
         #strip.text.x = element_blank(),
         legend.position = 'none',
         aspect.ratio = 5/1,
         legend.text = element_text(size = 10),
-        legend.title = element_text(size = 12),
+        legend.title = element_text(size = 10),
         panel.background = element_rect(fill = "transparent", color = NA),
         plot.background = element_rect(fill = "transparent", color = NA),
         panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank())
+        panel.grid.minor = element_blank()) -> Fig.5k
 
-ggsave('figures/Fig5k.tiff',
-       plot = last_plot(), width = 2, height = 5,
-       units = 'in', device = 'tiff')
+# Generate Figure 5
+(# ---- Top row (6 plots) ----
+  Fig.5a | Fig.5b | Fig.5c | Fig.5d | Fig.5e | Fig.5f) /
+(# ---- Bottom row (5 plots + spacer) ----
+  Fig.5g | Fig.5h | Fig.5i | Fig.5j | Fig.5k) +
+  plot_layout(
+    widths = c(1, 1, 1, 1, 0.6, 0.6),
+    heights = 0.9,
+    guides = "keep"
+  ) + 
+  plot_annotation(tag_levels = "a") -> Fig.5
   
+ggsave("figures/Figure5.jpg",
+       plot = Fig.5,
+       width = 15, height = 7,
+       device = 'jpg',
+       dpi = 600)

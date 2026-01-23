@@ -97,7 +97,7 @@ ggplot(fung.m,
        aes(x = PC1.soil, y = PC2.soil,
            fill = plant.shannon,
            shape = invasion)) +
-  geom_point(size = 4, color = "black") +  # black border
+  geom_point(size = 3, color = "black") +  # black border
   xlab("PC1 (60.3%)") +
   ylab("PC2 (13.9%)") +
   # Add arrows for soil traits
@@ -119,17 +119,15 @@ ggplot(fung.m,
   labs(fill = "Plant Shannon's\ndiversity",
        shape = "") +
   theme_classic() +
-  theme(axis.text = element_text(size = 12, color = 'black'),
-        axis.title = element_text(size = 14),
-        strip.text.x = element_text(size = 12),
-        legend.position = 'none',
+  theme(axis.text = element_text(size = 10, color = 'black'),
+        axis.title = element_text(size = 12),
+        strip.text.x = element_text(size = 10),
+        legend.position = 'right',
+        legend.title = element_text(size = 10),
         panel.background = element_rect(fill = "transparent", color = NA),
         plot.background = element_rect(fill = "transparent", color = NA),
         panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank())
-
-ggsave('figures/Fig3a.tiff', plot = last_plot(),
-       device = 'tiff', width = 5, height = 4)
+        panel.grid.minor = element_blank()) -> Fig.4a
 
 ## PC1 as a function of MAP and Plant diversity ----
 PC1.lm <- lm(PC1.soil ~ MAP + plant.shannon,
@@ -160,19 +158,16 @@ ggplot(fung.m, aes(x = plant.shannon,
   labs(y = 'Soil PC2 (13.9%)',
        x = "Plant Shannon's diversity") +
   theme_classic() +
-  theme(axis.title = element_text(size = 16),
-        axis.text.y = element_text(size = 12,
+  theme(axis.title = element_text(size = 12),
+        axis.text.y = element_text(size = 10,
                                    color = 'black'),
-        axis.text.x = element_text(size = 12,
+        axis.text.x = element_text(size = 10,
                                    color = 'black'),
         legend.position = 'right',
         panel.background = element_rect(fill = "transparent", color = NA),
         plot.background = element_rect(fill = "transparent", color = NA),
         panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank())
-
-ggsave('figures/Fig3b.tiff', plot = last_plot(),
-       device = 'tiff', width = 6, height = 4)
+        panel.grid.minor = element_blank()) -> Fig.4b
 
 ## Enzymatic activity ----
 
@@ -195,10 +190,10 @@ ggplot(fung.m, aes(x = bacterial.fisher.alpha,
   labs(x = "Bacterial Fisher's Alpha",
        fill = "MAP", ) +
   theme_classic() +
-  theme(axis.title = element_text(size = 16),
-        axis.text.y = element_text(size = 12,
+  theme(axis.title = element_text(size = 12),
+        axis.text.y = element_text(size = 10,
                                    color = 'black'),
-        axis.text.x = element_text(size = 12,
+        axis.text.x = element_text(size = 10,
                                    color = 'black'),
         legend.position = 'right',
         panel.background = element_rect(fill = "transparent", color = NA),
@@ -230,10 +225,10 @@ ggplot(fung.m.nag, aes(x = MAP,
                         SOC^-1, hr^-1, ")"))) +
   labs(x = "Mean annual precipitaiton (MAP)") +
   theme_classic() +
-  theme(axis.title = element_text(size = 16),
-        axis.text.y = element_text(size = 12,
+  theme(axis.title = element_text(size = 12),
+        axis.text.y = element_text(size = 10,
                                    color = 'black'),
-        axis.text.x = element_text(size = 12,
+        axis.text.x = element_text(size = 10,
                                    color = 'black'),
         legend.position = 'right',
         panel.background = element_rect(fill = "transparent", color = NA),
@@ -267,19 +262,17 @@ ggplot(fung.m.phos, aes(x = bacterial.fisher.alpha,
   labs(x = "Bacterial Fisher's alpha",
        fill = "Soil PC1") +
   theme_classic() +
-  theme(axis.title = element_text(size = 14),
-        axis.text.y = element_text(size = 12,
+  theme(axis.title = element_text(size = 12),
+        axis.text.y = element_text(size = 10,
                                    color = 'black'),
-        axis.text.x = element_text(size = 12,
+        axis.text.x = element_text(size = 10,
                                    color = 'black'),
         legend.position = 'right',
+        legend.title = element_text(size = 10),
         panel.background = element_rect(fill = "transparent", color = NA),
         plot.background = element_rect(fill = "transparent", color = NA),
         panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank())
-
-ggsave('figures/Fig3c.tiff', plot = last_plot(),
-       device = 'tiff', width = 6, height = 4)
+        panel.grid.minor = element_blank()) -> Fig.4c
 
 #--------------------------------------------------------------#
 # 2. Fungi ----
@@ -355,31 +348,27 @@ data.scores <- data.frame(NMDS1 = jacc.mds$points[,1],
 # install.packages("viridis")  # Install
 library("viridis")  
 
-jacc.plot <- ggplot() + 
+Fig.4e <- ggplot() + 
   geom_point(data = data.scores, aes(x = NMDS1,
                                      y = NMDS2,
                                      color = soil,
                                      shape = inv),
-             size = 4) +
+             size = 3) +
   #scale_fill_manual(values = c('darkblue', 'lightblue')) + # for invasion
   scale_color_viridis() +
   coord_equal() +
   theme_classic() +
   labs(shape = "",
        color = "Soil PC1") +  
-  theme(axis.text = element_text(size = 12,
+  theme(axis.text = element_text(size = 10,
                                  colour = 'black'),
-        axis.title = element_text(size = 14),
-        legend.position = 'bottom',
+        axis.title = element_text(size = 12),
+        legend.position = 'right',
+        legend.title = element_text(size = 10),
         panel.background = element_rect(fill = "transparent", color = NA),
         plot.background = element_rect(fill = "transparent", color = NA),
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank())
-
-ggsave('figures/Fig3e.tiff',
-       device = 'tiff',
-       plot = jacc.plot,
-       width = 6, height = 5, units = 'in')
 
 # Isolate outlier invaded communitys with a high soil.1 value
 data.scores %>%
@@ -413,8 +402,8 @@ horn.mds <- metaMDS(horn.dist, dist = 'bray',
 horn.stress <- horn.mds$stress
 
 # format data for plot
-data.scores <-  data.frame(NMDS1 = jacc.mds$points[,1],
-                           NMDS2 = jacc.mds$points[,2],
+data.scores <-  data.frame(NMDS1 = horn.mds$points[,1],
+                           NMDS2 = horn.mds$points[,2],
                            inv = fung.m$invasion,
                            dist = fung.m$disturbance,
                            MAP = fung.m$MAP,
@@ -422,31 +411,27 @@ data.scores <-  data.frame(NMDS1 = jacc.mds$points[,1],
                            plant.div = fung.m$plant.shannon,
                            geo.dist = fung.m$PCNM1)
 
-horn.plot <- ggplot() + 
+Fig.S6b <- ggplot() + 
   geom_point(data = data.scores, aes(x = NMDS1,
                                      y = NMDS2,
                                      color = soil,
                                      shape = inv),
-             size = 4) +
+             size = 3) +
   #scale_fill_manual(values = c('darkblue', 'lightblue')) + # for invasion
   scale_color_viridis() +
   coord_equal() +
   labs(color = "Soil PC1",
        shape = "") +
   theme_classic() +
-  theme(axis.text = element_text(size = 14,
+  theme(axis.text = element_text(size = 10,
                                  colour = 'black'),
-        axis.title = element_text(size = 16),
+        axis.title = element_text(size = 12),
         legend.position = 'bottom',
+        legend.title = element_text(size = 10),
         panel.background = element_rect(fill = "transparent", color = NA),
         plot.background = element_rect(fill = "transparent", color = NA),
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank())
-
-ggsave('figures/SupplementaryFigS6b.jpeg',
-       device = 'jpeg',
-       plot = horn.plot,
-       width = 6, height = 5, units = 'in')
 
 #--------------------------------------------------------------#
 # 3. Bacteria ----
@@ -485,10 +470,10 @@ ggplot(div.soil.m, aes(x = PC2.soil,
   labs(x = "Soil PC2",
        y = "Bacterial OTU richness") +
   theme_classic() +
-  theme(axis.title = element_text(size = 16),
-        axis.text.y = element_text(size = 12,
+  theme(axis.title = element_text(size = 12),
+        axis.text.y = element_text(size = 10,
                                    color = 'black'),
-        axis.text.x = element_text(size = 12,
+        axis.text.x = element_text(size = 10,
                                    color = 'black'),
         legend.position = 'right',
         panel.background = element_rect(fill = "transparent", color = NA),
@@ -518,19 +503,16 @@ ggplot(div.soil.m, aes(x = PC2.soil,
   labs(x = "Soil PC2",
        y = "Bacterial Fisher's alpha") +
   theme_classic() +
-  theme(axis.title = element_text(size = 14),
-        axis.text.y = element_text(size = 12,
+  theme(axis.title = element_text(size = 12),
+        axis.text.y = element_text(size = 9,
                                    color = 'black'),
-        axis.text.x = element_text(size = 12,
+        axis.text.x = element_text(size = 10,
                                    color = 'black'),
         legend.position = 'right',
         panel.background = element_rect(fill = "transparent", color = NA),
         plot.background = element_rect(fill = "transparent", color = NA),
         panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank())
-
-ggsave('figures/Fig3d.tiff', plot = last_plot(),
-       device = 'tiff', width = 6, height = 4)
+        panel.grid.minor = element_blank()) -> Fig.4d
 
 ## NMDS and PERMANOVA: Bacteria ----
 # isolate fungal community data
@@ -574,31 +556,42 @@ data.scores <- data.frame(NMDS1 = jacc.mds$points[,1],
                           plant.div = fung.m$plant.shannon,
                           geo.dist = fung.m$PCNM1)
 
-jacc.plot <- ggplot() + 
+Fig.S6d <- ggplot() + 
   geom_point(data = data.scores, aes(x = NMDS1,
                                      y = NMDS2,
                                      color = soil,
                                      shape = inv),
-             size = 5) +
+             size = 3) +
   #scale_fill_manual(values = c('darkblue', 'lightblue')) + # for invasion
   scale_color_viridis() +
   coord_equal() +
   theme_classic() +
   labs(color = 'Soil PC1',
        shape = "") +
-  theme(axis.text = element_text(size = 14,
+  theme(axis.text = element_text(size = 10,
                                  colour = 'black'),
-        axis.title = element_text(size = 16),
-        legend.position = 'right',
+        axis.title = element_text(size = 12),
+        legend.position = 'none',
         panel.background = element_rect(fill = "transparent", color = NA),
         plot.background = element_rect(fill = "transparent", color = NA),
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank())
 
-ggsave('figures/SupplementaryFig6d.tiff',
-       device = 'tiff',
-       plot = jacc.plot,
-       width = 6, height = 5, units = 'in')
+# Generate Appendix S2: Figure S6
+((Fig.S6a | Fig.S6b) /
+  (Fig.S6c | Fig.S6d)) +
+    plot_layout(
+      heights = c(1.1,1),
+      # width = c(1,1.2,1,1.2),
+      guides = 'collect') + 
+  plot_annotation(tag_levels = "a") -> Fig.S6
+
+ggsave("figures/FigureS6.jpg",
+       plot = Fig.S6,
+       width = 10, height = 8,
+       device = 'jpg',
+       dpi = 600)
+
 
 ### PERMANOVA: Morisita-Horn ----
 # Constrains permutations to blocks (aka pastures)
@@ -636,32 +629,42 @@ data.scores <- data.frame(NMDS1 = horn.mds$points[,1],
                           plant.div = fung.m$plant.shannon,
                           geo.dist = fung.m$PCNM1)
 
-horn.plot <- ggplot() + 
+Fig.4f <- ggplot() + 
   geom_point(data = data.scores, aes(x = NMDS1,
                                      y = NMDS2,
                                      color = soil,
                                      shape = inv),
-             size = 4) +
+             size = 3) +
   #scale_fill_manual(values = c('darkblue', 'lightblue')) + # for invasion
   scale_color_viridis() +
   coord_equal() +
   theme_classic() +
   labs(color = 'Soil PC1',
        shape = "") +
-  theme(axis.text = element_text(size = 12,
+  theme(axis.text = element_text(size = 10,
                                  colour = 'black'),
-        axis.title = element_text(size = 14),
+        axis.title = element_text(size = 12),
         legend.position = 'none',
         panel.background = element_rect(fill = "transparent", color = NA),
         plot.background = element_rect(fill = "transparent", color = NA),
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank())
 
-ggsave('figures/Fig3f.tiff',
-       device = 'tiff',
-       plot = horn.plot,
-       width = 6, height = 5, units = 'in')
+# Generate Figure 4
+((Fig.4a | Fig.4b) /
+  (Fig.4c | Fig.4d) /
+  (Fig.4e | Fig.4f)) +
+    plot_layout(
+    guides = 'keep',
+    widths = c(2,1,1,1,1)
+  ) + 
+  plot_annotation(tag_levels = "a") -> Fig.4
 
+ggsave("figures/Figure4.jpg",
+       plot = Fig.4,
+       width = 10, height = 10,
+       device = 'jpg',
+       dpi = 600)
 
 #--------------------------------------------------------------#
 # 4. Structural equation modeling ----
@@ -743,3 +746,6 @@ lavaanPlot(model = fit,
                                fontname = "Helvetica"),
            edge_options = list(color = "darkgrey", penwidth = 1),
            stars = c('regress'))
+
+# remove all objects from the R environment
+rm(list = ls())

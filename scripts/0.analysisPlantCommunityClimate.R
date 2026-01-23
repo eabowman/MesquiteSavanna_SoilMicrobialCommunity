@@ -57,7 +57,7 @@ max(field.data$MAP) - min(field.data$MAP)
 # Read in raster files (if using multiple files, read them into a stack or brick)
 # This file was not included in the repository as it is publicly available and very large. 
 # To run this, please download the file at https://www.worldclim.org/data/worldclim21.html
-raster_files <- raster("WorldClim/wc2.1_30s_bio/wc2.1_30s_bio_12.tif")
+raster_files <- raster("../G022.data/WorldClim/wc2.1_30s_bio/wc2.1_30s_bio_12.tif")
 
 # Define the extent manually using extent()
 subset_extent <- extent(c(-98.0, -97.85, 27.15, 27.25))
@@ -111,14 +111,11 @@ ggplot(mm.data, aes(x = Meg.max,
   xlab('Percent cover of M. maximus') +
   theme_classic() +
   scale_fill_manual(values = c('#8DB6AB', '#EDE6DE')) +
-  theme(axis.title = element_text(size = 16),
-        axis.text = element_text(size = 14,
+  labs(fill = 'Invasion') +
+  theme(axis.title = element_text(size = 14),
+        axis.text = element_text(size = 12,
                                  color = 'black'),
-        legend.position = 'none')
-
-ggsave('figures/SupplementaryFigureS2a.tiff',
-       plot = last_plot(), device = 'tiff',
-       width = 4, height = 6, units = 'in')
+        legend.position = 'right') -> Fig.S1a
 
 ## B. Invaded sites only ----
 # Isolate invaded site data
@@ -153,6 +150,10 @@ GG.lm <- lme(Meg.max ~ disturbance * vegetation,
              data = mm.inv.data)
 GG.anova <- anova(GG.lm)
 # Overall higher percent cover of Guinea grass in grasslands
+mm.inv.data %>%
+  group_by(vegetation) %>%
+  summarise(mean.Meg.max = mean(Meg.max),
+            sd.Meg.max = sd(Meg.max))
 
 ggplot(mm.inv.data, aes(x = vegetation,
                     y = Meg.max,
@@ -161,23 +162,37 @@ ggplot(mm.inv.data, aes(x = vegetation,
   geom_boxplot(width = 0.25) +
   scale_fill_manual(values = c("#905971", "#F1BB83")) +
   ylab(expression("Percent cover of " * italic ("M. maximus"))) +
+  labs(fill = 'Plant community') +
   xlab('') +
   theme_classic() +
-  theme(axis.title.y = element_text(size = 16),
-        axis.text.y = element_text(size = 14,
+  theme(axis.title.y = element_text(size = 14),
+        axis.text.y = element_text(size = 12,
                                  color = 'black'),
         axis.text.x = element_text(size = 12,
                                    color = 'black'),
-        legend.position = 'none')
+        legend.position = 'right') -> Fig.S1b
 
-ggsave('figures/SupplementaryFigureS2b.tiff',
-       plot = last_plot(), device = 'tiff',
-       width = 3, height = 6, units = 'in')
+# Generate Appendix S2: Fig. S1
+Fig.S1a +
+  Fig.S1b +
+    plot_layout(
+    nrow = 1,
+    ncol = 2,
+    guides = 'collect',
+    heights = c(1,1)
+  ) + 
+  plot_annotation(tag_levels = "a") -> Fig.S1
+
+ggsave("figures/FigureS1.jpg",
+       plot = Fig.S1,
+       width = 8, height = 5,
+       device = 'jpg',
+       dpi = 600)
 
 #--------------------------------------------------------------#
 # 3. Plant community ----
 #--------------------------------------------------------------#
-## Plant species richness ----
+## Plant species richness ------
 # isolate plant community data
 pl.comm <- pl.data[8:length(pl.data)]
 
@@ -223,21 +238,18 @@ ggplot(pl.data, aes(x = invasion,
   ylab("Plant species richness") +
   xlab('') +
   theme_classic() +
-  theme(axis.title = element_text(size = 16),
-        axis.text.y = element_text(size = 14,
+  theme(axis.title = element_text(size = 12),
+        axis.text.y = element_text(size = 10,
                                    color = 'black'),
-        axis.text.x = element_text(size = 14,
+        axis.text.x = element_text(size = 10,
                                    color = 'black',
                                    angle = 45,
                                    hjust = 1),
         legend.position = 'none',
-        strip.text = element_text(size = 14,
+        strip.text = element_text(size = 10,
                                   color = 'black'),
-        strip.background = element_blank())
+        strip.background = element_blank()) -> Fig.S3a
 
-ggsave('figures/SupplementaryFigureS3a.tiff',
-       plot = last_plot(), device = 'tiff',
-       width = 3, height = 6, units = 'in')
 
 # Plot
 ggplot(pl.data, aes(x = invasion,
@@ -249,21 +261,18 @@ ggplot(pl.data, aes(x = invasion,
   ylab("Plant species richness") +
   xlab('') +
   theme_classic() +
-  theme(axis.title = element_text(size = 16),
-        axis.text.y = element_text(size = 14,
+  theme(axis.title = element_text(size = 12),
+        axis.text.y = element_text(size = 10,
                                    color = 'black'),
-        axis.text.x = element_text(size = 14,
+        axis.text.x = element_text(size = 10,
                                    color = 'black',
                                    angle = 45,
                                    hjust = 1),
         legend.position = 'none',
-        strip.text = element_text(size = 14,
+        strip.text = element_text(size = 10,
                                   color = 'black'),
-        strip.background = element_blank())
+        strip.background = element_blank()) -> Fig.S3c
 
-ggsave('figures/SupplmentaryFigure3c.tiff',
-       plot = last_plot(), device = 'tiff',
-       width = 3, height = 6, units = 'in')
 
 ## Plant diversity ----
 
@@ -300,20 +309,63 @@ ggplot(pl.data, aes(x = invasion,
   scale_fill_manual(values = c("#8DB6AB", "#EDE6DE")) +
   ylab("Plant Shannon's diversity") +
   xlab('') +
+  labs(fill = 'Invasion') +
   theme_classic() +
-  theme(axis.title = element_text(size = 16),
-        axis.text.y = element_text(size = 14,
+  theme(axis.title = element_text(size = 12),
+        axis.text.y = element_text(size = 10,
                                  color = 'black'),
-        axis.text.x = element_text(size = 14,
+        axis.text.x = element_text(size = 10,
                                    color = 'black',
                                    angle = 45,
                                    hjust = 1),
-        legend.position = 'none',
-        strip.text = element_text(size = 14,
+        legend.position = 'right',
+        strip.text = element_text(size = 10,
                                   color = 'black'),
-        strip.background = element_blank())
+        strip.background = element_blank()) -> Fig.S3b
 
-ggsave('figures/SupplementaryFigureS3b.tiff',
-       plot = last_plot(), device = 'tiff',
-       width = 3, height = 6, units = 'in')
+# Generate Appendix S2: Fig. S1
+Fig.S3a +
+  Fig.S3b +
+  Fig.S3c +
+    plot_layout(
+    nrow = 1,
+    ncol = 3,
+    guides = 'collect',
+    heights = c(1,1,1)
+  ) + 
+  plot_annotation(tag_levels = "a") -> Fig.S3
 
+ggsave("figures/FigureS3.jpg",
+       plot = Fig.S3,
+       width = 10, height = 5,
+       device = 'jpg',
+       dpi = 600)
+
+## Multivariate dispersion ----
+# isolate plant community data
+pl.comm <- pl.data[8:length(pl.data)]
+
+# remove bare and thatch columns
+dplyr::select(pl.comm, -Bare, -Thatch) -> pl.comm
+
+# distance matrix 
+pl.dist <- vegdist(pl.comm, method = 'bray')
+
+# add a plot column
+pl.data$plot_id <- with(pl.data,
+  interaction(vegetation, invasion, disturbance, block, drop = TRUE)
+)
+
+### Quantify within-plot dispersion ----
+disp_within <- betadisper(pl.dist, group = pl.data$plot_id)
+
+within_vals <- disp_within$distances
+
+### Quantify between-plot dispersion ----
+disp_between <- betadisper(pl.dist, group = pl.data$block)
+
+
+tapply(disp_within$distances, pl.data$plot_id, mean)
+tapply(disp_between$distances, pl.data$block, mean)
+
+permutest(disp_within)

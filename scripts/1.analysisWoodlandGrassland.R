@@ -85,7 +85,7 @@ soil.data$disturbance <- factor(soil.data$disturbance,
                                 labels = c('Disturbed', 'Undisturbed'))
 soil.data$vegetation.type <- factor(soil.data$vegetation.type,
                                     levels = c('grassland', 'motte'),
-                                    labels = c('Grassland', 'Woody patch'))
+                                    labels = c('Grassland', 'Motte'))
 
 ## Enzymatic activity ----
 
@@ -102,15 +102,16 @@ beta.lm <- lm(log.beta ~ vegetation.type * invasion * disturbance,
 beta.anova <- anova(beta.lm)
 
 # plot
-beta.plot <- ggplot(soil.beta, aes(x = vegetation.type,
+Fig.1b <- ggplot(soil.beta, aes(x = vegetation.type,
                                    y = Beta_umolgSOC.1h.1,
                                    fill = vegetation.type)) +
   geom_boxplot(width = 0.25) +
-  geom_point(size = 1, color = 'grey') +
+  # geom_point(size = 1, color = 'grey') +
   # facet_grid(. ~ Invasion) +
   xlab('') +
   ylab(expression(paste(beta, "-glucosidase (", mu, "mol g",
                         SOC^-1, hr^-1, ")"))) +
+  scale_y_continuous(labels = scales::label_scientific()) +
   scale_fill_manual(values = c('#905971', '#F1BB83')) +
   theme_classic() +
   theme(axis.title = element_text(size = 12),
@@ -140,15 +141,16 @@ nag.lm <- lm(cube.root.nag ~ vegetation.type * invasion * disturbance,
 nag.anova <- anova(nag.lm)
 
 # plot
-nag.plot <- ggplot(nag.soil, aes(x = vegetation.type,
+Fig.1c <- ggplot(nag.soil, aes(x = vegetation.type,
                                    y = Nag_umolgSOC.1h.1,
                                  fill = vegetation.type)) +
   geom_boxplot(width = 0.25) +
-  geom_point(size = 1, color = 'grey') +
+  # geom_point(size = 1, color = 'grey') +
   # ylim(0, 1500) +
   xlab('') +
   ylab(expression(paste("NAGase (",mu, "mol g",
                         SOC^-1, hr^-1, ")"))) +
+    scale_y_continuous(labels = scales::label_scientific()) +
   scale_fill_manual(values = c('#905971', '#F1BB83')) +
   theme_classic() +
   theme(axis.title = element_text(size = 12),
@@ -180,14 +182,15 @@ phos.anova <- anova(phos.lm)
 plot(phos.lm)
 
 # plot
-phos.plot <- ggplot(phos.soil, aes(x = vegetation.type,
+Fig.1d <- ggplot(phos.soil, aes(x = vegetation.type,
                                    y = Phos_umolgSOC.1h.1,
                                    fill = vegetation.type)) +
   geom_boxplot(width = 0.25) +
-  geom_point(size = 1, color = 'grey') +
+  # geom_point(size = 1, color = 'grey') +
   xlab('') +
   ylab(expression(paste("Phosphatase (",mu, "mol g",
                         SOC^-1, hr^-1, ")"))) +
+  scale_y_continuous(labels = scales::label_scientific()) +
   scale_fill_manual(values = c('#905971', '#F1BB83')) +
   theme_classic() +
   theme(axis.title = element_text(size = 12),
@@ -204,10 +207,6 @@ phos.plot <- ggplot(phos.soil, aes(x = vegetation.type,
         panel.grid.minor = element_blank()
   )
 
-veg.plot <- gridExtra::arrangeGrob(beta.plot, nag.plot, phos.plot,
-                                   nrow = 1, ncol = 3)
-ggsave('figures/Fig1btod.tiff', plot = veg.plot,
-       device = 'tiff', width = 6, height = 5, units = 'in')
 
 ## Nutrients and pH -----
 
@@ -302,18 +301,17 @@ ggplot(pca.soil.plot,
             segment.color = "darkred",
             inherit.aes = F) +
   theme_classic() +
-  theme(axis.text = element_text(size = 18, color = 'black'),
-        axis.title = element_text(size = 20),
-        strip.text.x = element_text(size = 18),
+  theme(axis.text = element_text(size = 12, color = 'black'),
+        axis.title.y = element_text(size = 14),
+        axis.title.x = element_text(size = 14, vjust = 1),
+        strip.text.x = element_text(size = 12),
         legend.position = 'none',
         panel.background = element_rect(fill = "transparent", color = NA),
         plot.background = element_rect(fill = "transparent", color = NA),
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank()
-  )
+  ) -> Fig.1a
 
-ggsave('figures/Fig1a.tiff', plot = last_plot(),
-       device = 'tiff', width = 6, height = 5)
 
 #### Plot: Invasion ----
 ggplot(pca.soil.plot,
@@ -326,7 +324,7 @@ ggplot(pca.soil.plot,
                type = "norm",
                level = 0.95,
                alpha = 0.3) +
-  geom_point(shape = 21, size = 3, color = 'black') +
+  geom_point(shape = 21, size = 2, color = 'black') +
   # facet_grid(. ~ vegetation.type) +
   scale_fill_manual(values = c("#4E84C4", "#293352")) +
   # Add arrows for soil traits
@@ -350,15 +348,12 @@ ggplot(pca.soil.plot,
   theme_classic() +
   xlab("PC1 (55.9%)") +
   ylab("PC2 (13.6%)") +
-  theme(axis.text = element_text(size = 18, color = 'black'),
-        axis.title = element_text(size = 20),
-        strip.text.x = element_text(size = 18),
+  theme(axis.text = element_text(size = 12, color = 'black'),
+        axis.title = element_text(size = 14),
+        strip.text.x = element_text(size = 12),
         strip.background = element_rect(color = 'white',
                                         fill = 'white'),
-        legend.position = 'none')
-
-ggsave('figures/SupplementaryFigS4a.tiff', plot = last_plot(),
-       device = 'tiff', width = 6, height = 5)
+        legend.position = 'right') -> Fig.S4a
 
 #### Plot: Disturbance ----
 ggplot(pca.soil.plot,
@@ -371,7 +366,7 @@ ggplot(pca.soil.plot,
                type = "norm",
                level = 0.95,
                alpha = 0.2) +
-  geom_point(shape = 21, size = 3, color = 'black') +
+  geom_point(shape = 21, size = 2, color = 'black') +
   # facet_grid(. ~ vegetation.type) +
   scale_fill_manual(values = c("#D1D0DE","#636D97")) +
   # Add arrows for soil traits
@@ -395,22 +390,20 @@ ggplot(pca.soil.plot,
   theme_classic() +
   xlab("PC1 (55.9%)") +
   ylab("PC2 (13.6%)") +
-  theme(axis.text = element_text(size = 18, color = 'black'),
-        axis.title = element_text(size = 20),
-        strip.text.x = element_text(size = 18),
+  theme(axis.text = element_text(size = 12, color = 'black'),
+        axis.title = element_text(size = 14),
+        strip.text.x = element_text(size = 12),
         strip.background = element_rect(color = 'white',
                                         fill = 'white'),
-        legend.position = 'none')
+        legend.position = 'right') -> Fig.S4b
 
-ggsave('figures/SupplementaryFigS4b.tiff', plot = last_plot(),
-       device = 'tiff', width = 6, height = 5)
 
 #### Plot: boxplot ----
 pca.soil.plot %>%
   dplyr::select(PC1, PC2, disturbance, invasion, vegetation.type) -> pca.soil.plot
 
 # Create the box plot
-veg.plot <- ggplot(pca.soil.plot, aes(x = vegetation.type,
+Fig.S4c <- ggplot(pca.soil.plot, aes(x = vegetation.type,
                           y = PC1,
                           fill = vegetation.type)) +
   geom_boxplot(width = 0.5) +
@@ -419,16 +412,16 @@ veg.plot <- ggplot(pca.soil.plot, aes(x = vegetation.type,
   # facet_grid(invasion ~ disturbance) +
   xlab("") +
   ylab("PC1 scores") +
-  theme(axis.text.y = element_text(size = 18, color = 'black'),
-        axis.text.x = element_text(size = 18, color = 'black',
+  theme(axis.text.y = element_text(size = 12, color = 'black'),
+        axis.text.x = element_text(size = 12, color = 'black',
                                    angle = 45, hjust = 1),
-        axis.title = element_text(size = 20),
-        strip.text = element_text(size = 18),
+        axis.title = element_text(size = 14),
+        strip.text = element_text(size = 12),
         strip.background = element_rect(color = 'white',
                                         fill = 'white'),
         legend.position = 'none')
 
-inv.plot <- ggplot(pca.soil.plot, aes(x = invasion,
+Fig.S4d <- ggplot(pca.soil.plot, aes(x = invasion,
                                       y = PC1,
                                       fill = invasion)) +
   geom_boxplot(width = 0.5) +
@@ -437,16 +430,16 @@ inv.plot <- ggplot(pca.soil.plot, aes(x = invasion,
   # facet_grid(invasion ~ disturbance) +
   xlab("") +
   ylab("PC1 scores") +
-  theme(axis.text.y = element_text(size = 18, color = 'black'),
-        axis.text.x = element_text(size = 18, color = 'black',
+  theme(axis.text.y = element_text(size = 12, color = 'black'),
+        axis.text.x = element_text(size = 12, color = 'black',
                                    angle = 45, hjust = 1),
-        axis.title = element_text(size = 20),
-        strip.text = element_text(size = 18),
+        axis.title = element_text(size = 14),
+        strip.text = element_text(size = 12),
         strip.background = element_rect(color = 'white',
                                         fill = 'white'),
         legend.position = 'none')
 
-dist.plot <- ggplot(pca.soil.plot, aes(x = disturbance,
+Fig.S4e <- ggplot(pca.soil.plot, aes(x = disturbance,
                                       y = PC1,
                                       fill = disturbance)) +
   geom_boxplot(width = 0.5) +
@@ -455,19 +448,29 @@ dist.plot <- ggplot(pca.soil.plot, aes(x = disturbance,
   # facet_grid(invasion ~ disturbance) +
   xlab("") +
   ylab("PC1 scores") +
-  theme(axis.text.y = element_text(size = 18, color = 'black'),
-        axis.text.x = element_text(size = 18, color = 'black',
+  theme(axis.text.y = element_text(size = 12, color = 'black'),
+        axis.text.x = element_text(size = 12, color = 'black',
                                    angle = 45, hjust = 1),
-        axis.title = element_text(size = 20),
-        strip.text = element_text(size = 18),
+        axis.title = element_text(size = 14),
+        strip.text = element_text(size = 12),
         strip.background = element_rect(color = 'white',
                                         fill = 'white'),
         legend.position = 'none')
 
-box.plot <- gridExtra::arrangeGrob(veg.plot, inv.plot, dist.plot,
-                                   nrow = 1, ncol = 3)
-ggsave('figures/SupplementaryFigS4c.tiff', plot = box.plot,
-       device = 'tiff', width = 6, height = 5, units = 'in')
+# Generate Appendix S2: Figure S4
+(Fig.S4a | Fig.S4b) /
+  (Fig.S4c | Fig.S4d | Fig.S4e) +
+    plot_layout(
+      heights = c(2,1),
+      guides = 'collect') +
+  plot_annotation(tag_levels = "a") &
+  theme(legend.position = 'none') -> Fig.S4
+
+ggsave("figures/FigureS4.jpg",
+       plot = Fig.S4,
+       width = 10, height = 8,
+       device = 'jpg',
+       dpi = 600)
 
 #--------------------------------------------------------------#
 # 2. Fungi ----
@@ -534,11 +537,6 @@ ggplot(div.data,
         strip.background = element_blank(),
         legend.position = 'none')
 
-ggsave('figures/SupplementaryFigS5a_SR.tiff',
-       device = 'tiff',
-       plot = last_plot(),
-       width = 4, height = 5, units = 'in')
-
 ### Fisher's alpha: normal ----
 # test normality
 hist(div.data$fungal.fisher.alpha)
@@ -565,14 +563,9 @@ ggplot(div.data,
         axis.text.x = element_text(size = 12, color = 'black',
                                    angle = 45, hjust = 1),
         axis.title = element_text(size = 14),
-        strip.text.x = element_text(size = 14),
+        strip.text.x = element_text(size = 12),
         strip.background = element_blank(),
-        legend.position = 'none')
-
-ggsave('figures/SupplementaryFigS5c_div.tiff',
-       device = 'tiff',
-       plot = last_plot(),
-       width = 3, height = 5, units = 'in')
+        legend.position = 'none') -> Fig.S5a
 
 ## Species richness and diversity as a function of soil traits ----
 # How to do this as all soil traits are correlated?
@@ -641,6 +634,9 @@ data.scores <- data.frame(NMDS1 = jacc.mds$points[,1],
                           invasion = fung.data$invasion,
                           disturbance = fung.data$disturbance,
                           vegetation.type = fung.data$vegetation.type)
+data.scores$vegetation.type <- factor(data.scores$vegetation.type, 
+                                      levels = c("Grassland", 'Woody patch'),
+                                      labels = c('Grassland', 'Motte'))
 
 jacc.plot <- ggplot() + 
   geom_point(data = data.scores, aes(x = NMDS1,
@@ -659,12 +655,8 @@ jacc.plot <- ggplot() +
         plot.background = element_rect(fill = "transparent", color = NA),
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank()
-  )
+  ) -> Fig.1e
 
-ggsave('figures/Fig1e.tiff',
-       device = 'tiff',
-       plot = jacc.plot,
-       width = 4, height = 3, units = 'in')
 
 ### ANOSIM: Morisita-Horn, plant community structure ---
 # Morisita-Horn distance matrix
@@ -701,21 +693,15 @@ horn.plot <- ggplot() +
   geom_point(data = data.scores, aes(x = NMDS1,
                                      y = NMDS2,
                                      fill = vegetation.type),
-             size = 4,
+             size = 3,
              shape = 21) +
   scale_fill_manual(values = c("#905971", "#F1BB83")) +
   coord_equal() +
   theme_classic() +
-  theme(axis.text = element_text(size = 14,
+  theme(axis.text = element_text(size = 12,
                                  colour = 'Black'),
-        axis.title = element_text(size = 16),
-        legend.position = 'none')
-
-ggsave('figures/SupplementaryFigS5d.tiff',
-       device = 'tiff',
-       plot = horn.plot,
-       width = 5, height = 3, units = 'in')
-
+        axis.title = element_text(size = 14),
+        legend.position = 'none') -> Fig.S5d
 
 #--------------------------------------------------------------#
 # 3. Bacteria ----
@@ -775,7 +761,7 @@ anova(bac.div.lme)
 histogram(residuals(bac.div.lme))
 
 # plot
-bac.div.plot <- ggplot(div.data,
+Fig.S5b <- ggplot(div.data,
                        aes(x = vegetation.type,
                            y = bacterial.fisher.alpha,
                            fill = vegetation.type)) +
@@ -789,16 +775,10 @@ bac.div.plot <- ggplot(div.data,
         axis.text.x = element_text(size = 12, color = 'black',
                                    angle = 45, hjust = 1),
         axis.title = element_text(size = 14),
-        strip.text.x = element_text(size = 14),
         strip.background = element_blank(),
         legend.position = 'none')
 
-ggsave('figures/SupplementaryFigS5b.tiff',
-       device = 'tiff',
-       plot = bac.div.plot,
-       width = 2, height = 5, units = 'in')
-
-bac.div.plot <- ggplot(bac.sr.data,
+Fig.S5c <- ggplot(bac.sr.data,
                        aes(x = invasion,
                            y = bacterial.fisher.alpha,
                            fill = invasion)) +
@@ -812,14 +792,10 @@ bac.div.plot <- ggplot(bac.sr.data,
         axis.text.x = element_text(size = 12, color = 'black',
                                    angle = 45, hjust = 1),
         axis.title = element_text(size = 14),
-        strip.text.x = element_text(size = 14),
+        strip.text.x = element_text(size = 12),
         strip.background = element_blank(),
         legend.position = 'none')
 
-ggsave('figures/SupplementaryFigS5c.tiff',
-       device = 'tiff',
-       plot = bac.div.plot,
-       width = 3, height = 5, units = 'in')
 
 ## Species richness and diversity as a function of soil traits ----
 # Species richness
@@ -880,7 +856,7 @@ data.scores <- data.frame(NMDS1 = jacc.mds$points[,1],
                           disturbance = bac.data$disturbance,
                           vegetation.type = bac.data$vegetation.type)
 
-jacc.plot <- ggplot() + 
+Fig.S5e <- ggplot() + 
   geom_point(data = data.scores, aes(x = NMDS1,
                                      y = NMDS2,
                                      fill = vegetation.type),
@@ -899,10 +875,20 @@ jacc.plot <- ggplot() +
         panel.grid.minor = element_blank()
   )
 
-ggsave('figures/SupplementaryFigS5e.tiff',
-       device = 'tiff',
-       plot = jacc.plot,
-       width = 4, height = 3, units = 'in')
+# Generate Appendix S2: Figure S5
+(Fig.S5a | Fig.S5b | Fig.S5c) /
+  (Fig.S5d | Fig.S5e) +
+    plot_layout(
+      heights = c(1.5,2),
+      guides = 'collect') +
+  plot_annotation(tag_levels = "a") &
+  theme(legend.position = 'none') -> Fig.S5
+
+ggsave("figures/FigureS5.jpg",
+       plot = Fig.S5,
+       width = 10, height = 8,
+       device = 'jpg',
+       dpi = 600)
 
 ### PERMANOVA: Morisita-Horn  ----
 
@@ -943,7 +929,7 @@ data.scores <- data.frame(NMDS1 = horn.mds$points[,1],
                           disturbance = bac.data$disturbance,
                           vegetation.type = bac.data$vegetation.type)
 
-horn.plot <- ggplot() + 
+Fig.1f <- ggplot() + 
   geom_point(data = data.scores, aes(x = NMDS1,
                                      y = NMDS2,
                                      fill = vegetation.type),
@@ -961,11 +947,6 @@ horn.plot <- ggplot() +
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank()
   )
-
-ggsave('figures/Fig1f.tiff',
-       device = 'tiff',
-       plot = horn.plot,
-       width = 4, height = 3, units = 'in')
 
 #--------------------------------------------------------------#
 # 4. Comparison of two communities ----
@@ -1068,12 +1049,33 @@ merged.dist %>%
         plot.background = element_rect(fill = "transparent", color = NA),
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank()) +
-  coord_cartesian(clip = "off")
+  coord_cartesian(clip = "off") -> Fig.1g
 
-ggsave('figures/Fig1g.tiff',
-       device = 'tiff',
-       plot = last_plot(),
-       width = 7, height = 3, units = 'in')
+# Generate Figure 1
+top.row <- Fig.1a  +
+    theme(axis.title.x = element_text(margin = margin(t = -30, 
+                                                      unit = "pt"))) | 
+  (Fig.1b | Fig.1c | Fig.1d) +
+  plot_layout(ncol = 4, 
+              nrow = 1, 
+              widths = c(2,1,1,1))
+middle.row <- Fig.1e | Fig.1f
+bottom.row <- Fig.1g
+
+top.row /
+  middle.row /
+  bottom.row / 
+  plot_layout(heights = c(1,1,1),
+      guides = 'collect') +
+  plot_annotation(tag_levels = "a") &
+  theme(legend.position = 'none') -> Fig.1
+
+ggsave("figures/Figure1.jpg",
+       plot = Fig.1,
+       width = 10, height = 12,
+       device = 'jpg',
+       dpi = 600)
+
 
 ## Wilcox-test ----
 # Make dataframe
@@ -1107,3 +1109,4 @@ merged.dist.long %>%
   filter(Index == 'MorisitaHorn',
          Microbial.group == 'Fungi') -> merged.dist.long.fun.horn
 wilcox.test(Distance ~ Group, data = merged.dist.long.fun.horn)
+
