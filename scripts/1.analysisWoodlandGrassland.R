@@ -619,7 +619,8 @@ anosim(fung.comm, grouping = fung.data$vegetation.type,
 
 ### NMDS: Jaccard ----
 # create distance matrix
-jacc.dist <- vegdist(fung.comm, method = 'jaccard', binary = T)
+jacc.dist <- vegdist(fung.comm,
+                     method = 'jaccard', binary = T)
 
 # GGplot: Jaccard
 jacc.mds <- metaMDS(jacc.dist, dist = 'bray',
@@ -628,7 +629,6 @@ jacc.stress <- jacc.mds$stress
 # rownames(jacc.mds$points) <- fung.data$sample
 
 # format data for plot
-
 data.scores <- data.frame(NMDS1 = jacc.mds$points[,1],
                           NMDS2 = jacc.mds$points[,2],
                           invasion = fung.data$invasion,
@@ -638,7 +638,7 @@ data.scores$vegetation.type <- factor(data.scores$vegetation.type,
                                       levels = c("Grassland", 'Woody patch'),
                                       labels = c('Grassland', 'Motte'))
 
-jacc.plot <- ggplot() + 
+ggplot() + 
   geom_point(data = data.scores, aes(x = NMDS1,
                                      y = NMDS2,
                                      fill = vegetation.type),
@@ -656,7 +656,6 @@ jacc.plot <- ggplot() +
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank()
   ) -> Fig.1e
-
 
 ### ANOSIM: Morisita-Horn, plant community structure ---
 # Morisita-Horn distance matrix
@@ -689,7 +688,7 @@ data.scores <- data.frame(NMDS1 = horn.mds$points[,1],
                           disturbance = fung.data$disturbance,
                           vegetation.type = fung.data$vegetation.type)
 
-horn.plot <- ggplot() + 
+ggplot() + 
   geom_point(data = data.scores, aes(x = NMDS1,
                                      y = NMDS2,
                                      fill = vegetation.type),
