@@ -18,9 +18,36 @@ fung.g <- read.csv('data/data.fungal.Grasslands.csv')
 bac.g <- read.csv('data/data.bacterial.Grasslands.csv')
 div.soil.g <- read.csv('data/data.diversity.Grasslands.csv')
 
-#--------------------------------------------------------------#
+# Change plot from block + treatment to just a plot number
+## Diversity data
+# Remove the first character (block number)
+plot_code <- substring(div.soil.g$plot, 2)
+
+# Convert treatments to numbers
+div.soil.g$plot_num <- as.integer(factor(plot_code,
+                                       levels = c("DGN", "DMN", "UGN", "UMN",
+                                                  "DGL", "DML", "UGL", "UML")))
+
+## Fungal data
+# Remove the first character (block number)
+plot_code <- substring(fung.g$plot, 2)
+
+# Convert treatments to numbers
+fung.g$plot_num <- as.integer(factor(plot_code,
+                                       levels = c("DGN", "DMN", "UGN", "UMN",
+                                                  "DGL", "DML", "UGL", "UML")))
+
+## Bacterial data
+# Remove the first character (block number)
+plot_code <- substring(bac.g$plot, 2)
+
+# Convert treatments to numbers
+bac.g$plot_num <- as.integer(factor(plot_code,
+                                       levels = c("DGN", "DMN", "UGN", "UMN",
+                                                  "DGL", "DML", "UGL", "UML")))
+
+
 # 0. Assess collinearity of data ----
-#--------------------------------------------------------------#
 
 ## rcorr ----
 cor.data <- fung.g[, c("PC1.soil", "PC2.soil", "MAP", "plant.shannon",
@@ -47,7 +74,7 @@ hist(pc1.div.lm$residuals)
 
 fung.g$plant.shannon.residuals <- pc1.div.lm$residuals
 
-fung.g[c(1:23, 1375, 24:1374)] -> fung.g
+# fung.g[c(1:23, 1375, 24:1374)] -> fung.g
 
 ### Bacteria
 pc1.div.b.lm <- glm(plant.shannon ~ PC1.soil, data = bac.g)
@@ -58,7 +85,7 @@ hist(pc1.div.b.lm$residuals)
 
 bac.g$plant.shannon.residuals <- pc1.div.b.lm$residuals
 
-bac.g[c(1:23, 5686, 24:5685)] -> bac.g
+# bac.g[c(1:23, 5686, 24:5685)] -> bac.g
 
 #--------------------------------------------------------------#
 # 1. Soil characteristics----
@@ -142,13 +169,12 @@ ggplot(fung.g,
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank()) -> Fig.2a
 
-## PC1 of soil traits ----
-PC1.lm <- lm(PC1.soil ~ MAP + plant.shannon,
-              #random = ~ 1 | block,
+PC1.lmer <- lmer(PC1.soil ~ plant.shannon + (1 | block/plot),
               data = fung.g)
-summary(PC1.lm)
-plot(PC1.lm$residuals)
-shapiro.test(PC1.lm$residuals)
+summary(PC1.lmer)
+
+plot(PC1.lmer)
+shapiro.test(residuals(PC1.lmer))
 
 ggplot(fung.g, aes(x = plant.shannon,
                    y = PC1.soil)) +
@@ -169,45 +195,48 @@ ggplot(fung.g, aes(x = plant.shannon,
         panel.grid.minor = element_blank()) -> Fig.2b
 
 ## PC2 of soil traits ----
-PC2.lm <- lm(PC2.soil ~ MAP + plant.shannon,
-             #random = ~ 1 | block,
+PC2.lmer <- lmer(PC2.soil ~ plant.shannon + (1 | block/plot),
              data = fung.g)
-summary(PC2.lm)
-# plot(PC2.lm)
-shapiro.test(PC2.lm$residuals)
+summary(PC2.lmer)
+
+plot(PC2.lmer)
+shapiro.test(residuals(PC2.lmer))
 
 ## Enzymatic activity ----
 
 ### Beta galactosidase ----
-beta.lm <- lm(log.beta ~ fungal.fisher.alpha + bacterial.fisher.alpha +
-                 MAP + plant.shannon.residuals + PC1.soil,
-               # random = ~ 1 | block,
+beta.lmer <- lmer(log.beta ~ fungal.fisher.alpha + bacterial.fisher.alpha +
+                plant.shannon.residuals + PC1.soil + (1 | block/plot),
                data = fung.g)
-summary(beta.lm)
-plot(beta.lm$residuals)
-shapiro.test(beta.lm$residuals)
+summary(beta.lmer)
+
+plot(beta.lmer)
+shapiro.test(residuals(beta.lmer))
 
 ### Nag----
-nag.lm <- lm(log.nag ~ fungal.fisher.alpha + bacterial.fisher.alpha +
-                MAP + invasion + PC1.soil,
-              # random = ~ 1 | block,
+
+nag.lmer <- lmer(log.nag ~ fungal.fisher.alpha + bacterial.fisher.alpha +
+                 plant.shannon.residuals + PC1.soil + (1 | block/plot),
               data = fung.g)
-summary(nag.lm)
-# plot(nag.lm$residuals)
-shapiro.test(nag.lm$residuals)
+summary(nag.lmer)
+
+plot(nag.lmer)
+shapiro.test(residuals(nag.lmer))
 
 ### Phos----
-phos.lm <- lme(Phos_umolgSOC.1h.1 ~ fungal.fisher.alpha + bacterial.fisher.alpha +
-                 MAP + plant.shannon.residuals + PC1.soil,
-    random = ~ 1 | block,
-    data = fung.g)
-summary(phos.lm)
-# plot(phos.lm$residuals)
-shapiro.test(phos.lm$residuals)
+hist(sqrt(fung.g$Phos_umolgSOC.1h.1))
+shapiro.test(sqrt(fung.g$Phos_umolgSOC.1h.1))
+mutate(fung.g, sqrt.Phos = sqrt(Phos_umolgSOC.1h.1)) -> fung.g
 
-#--------------------------------------------------------------#
+phos.lmer <- lmer(sqrt.Phos ~ fungal.fisher.alpha + bacterial.fisher.alpha +
+                 plant.shannon.residuals + PC1.soil + (1 | block/plot),
+              data = fung.g)
+summary(phos.lmer)
+
+plot(phos.lmer)
+shapiro.test(residuals(phos.lmer))
+
 # 2. Fungi ----
-#--------------------------------------------------------------#
 
 ## Species richness and diversity ----
 
@@ -218,13 +247,18 @@ hist(div.soil.g$fungal.fisher.alpha)
 shapiro.test(div.soil.g$fungal.fisher.alpha)  
 
 ### OTU richness: normal ----
-### Fine
-fung.sr.lm <- lm(fungal.spec.richness ~ plant.shannon.residuals + PC1.soil + MAP,
-                 #random = ~ 1 | block,
+hist(fung.g$fungal.spec.richness)
+shapiro.test(fung.g$fungal.spec.richness)
+
+fung.sr.lmer <- lmer(fungal.spec.richness ~ plant.shannon.residuals + PC1.soil + (1 | block/plot),
                  data = fung.g)
-summary(fung.sr.lm)
-hist(fung.sr.lm$residuals)
-shapiro.test(fung.sr.lm$residuals)
+summary(fung.sr.lmer)
+
+plot(fung.sr.lmer)
+shapiro.test(residuals(fung.sr.lmer))
+qqnorm(residuals(fung.sr.lmer))
+qqline(residuals(fung.sr.lmer))
+hist(residuals(fung.sr.lmer))
 
 ggplot(fung.g, aes(x = PC1.soil,
                    y = fungal.spec.richness)) +
@@ -242,16 +276,22 @@ ggplot(fung.g, aes(x = PC1.soil,
         panel.background = element_rect(fill = "transparent", color = NA),
         plot.background = element_rect(fill = "transparent", color = NA),
         panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank()) -> Fig.2c
+        panel.grid.minor = element_blank()) 
 
 ### Fisher's alpha: normal ----
 ### Fine
-fung.div.lm <- lm(fungal.fisher.alpha ~ plant.shannon.residuals + PC1.soil + MAP,
-                   #random = ~ 1 | block,
+hist(fung.g$fungal.fisher.alpha)
+shapiro.test(fung.g$fungal.fisher.alpha)
+
+fung.div.lmer <- lmer(fungal.fisher.alpha ~ plant.shannon.residuals + PC1.soil + (1 | block/plot),
                    data = fung.g)
-summary(fung.div.lm)
-hist(fung.div.lm$residuals)
-shapiro.test(fung.div.lm$residuals)
+summary(fung.div.lmer)
+
+plot(fung.div.lmer)
+shapiro.test(residuals(fung.div.lmer))
+qqnorm(residuals(fung.div.lmer))
+qqline(residuals(fung.div.lmer))
+hist(residuals(fung.div.lmer))
 
 ## NMDS and PERMANOVA: Fungi ----
 # isolate fungal community data
@@ -265,7 +305,7 @@ perm <- how(nperm = 199)
 setBlocks(perm) <- with (fung.g, block)
 
 # fine
-fung.jac.adonis <- adonis2(fung.comm ~ PC1.soil * plant.shannon.residuals * MAP + PCNM1,
+fung.jac.adonis <- adonis2(fung.comm ~ PC1.soil * plant.shannon.residuals + PCNM1,
                           method = 'jaccard',
                           by = 'terms',
                           data = fung.g,
@@ -293,21 +333,20 @@ data.scores <- data.frame(NMDS1 = jacc.mds$points[,1],
                           soil = fung.g$PC1.soil,
                           plant.div = fung.g$plant.shannon.residuals,
                           geo.dist = fung.g$PCNM1)
-# install.packages("viridis")  # Install
-library("viridis")  
 
 ggplot() + 
   geom_point(data = data.scores, aes(x = NMDS1,
                                      y = NMDS2,
-                                     color = soil,
+                                     fill = soil,
                                      shape = inv),
-             size = 3) +
-  #scale_fill_manual(values = c('darkblue', 'lightblue')) + # for invasion
-  scale_color_viridis() +
+             size = 3, color = 'black') +
+  scale_fill_gradient(low = "white", high = "#5A3246") +  
   coord_equal() +
+  scale_shape_manual(values = c(21,24)) +
   theme_classic() +
   labs(shape = "",
-       color = "Soil PC1") +  
+       fill = "Soil PC1") +  
+  guides(shape = 'none') +
   theme(axis.text = element_text(size = 10,
                                  colour = 'black'),
         axis.title = element_text(size = 12),
@@ -316,7 +355,7 @@ ggplot() +
         panel.background = element_rect(fill = "transparent", color = NA),
         plot.background = element_rect(fill = "transparent", color = NA),
         panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank()) -> Fig.2e
+        panel.grid.minor = element_blank()) -> Fig.2d
 
 ### PERMANOVA: Morisita-Horn ----
 # Constrains permutations to blocks (aka pastures)
@@ -324,7 +363,7 @@ perm <- how(nperm = 199)
 setBlocks(perm) <- with (fung.g, block)
 
 # fine
-fung.horn.adonis <- adonis2(fung.comm ~ PC1.soil * plant.shannon.residuals * MAP + PCNM1,
+fung.horn.adonis <- adonis2(fung.comm ~ PC1.soil * plant.shannon.residuals + PCNM1,
                           method = 'horn',
                           by = 'terms',
                           data = fung.g,
@@ -378,9 +417,9 @@ Fig.S6a <- ggplot() +
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank())
 
-#--------------------------------------------------------------#
+
 # 3. Bacteria ----
-#--------------------------------------------------------------#
+
 ## Be sure to run the section "Combine soil data and div data, add PC1
 ## of soil data" above under 2. Fungi section
 
@@ -392,28 +431,35 @@ hist(div.soil.g$bacterial.fisher.alpha)
 shapiro.test(div.soil.g$bacterial.fisher.alpha)  
 
 ### Species richness ----
-### Fine
-bac.sr.lm <- lm(bacterial.spec.richness ~ plant.shannon.residuals + PC1.soil + MAP,
-                #random = ~ 1 | block,
+hist(bac.g$bacterial.spec.richness)
+shapiro.test(bac.g$bacterial.spec.richness)
+
+bac.sr.lmer <- lmer(bacterial.spec.richness ~ plant.shannon.residuals + PC1.soil + (1 | block/plot),
                 data = bac.g)
-summary(bac.sr.lm)
-hist(bac.sr.lm$residuals)
-shapiro.test(bac.sr.lm$residuals)
+summary(bac.sr.lmer)
+
+plot(bac.sr.lmer)
+shapiro.test(residuals(bac.sr.lmer))
+qqnorm(residuals(bac.sr.lmer))
+qqline(residuals(bac.sr.lmer))
+hist(residuals(bac.sr.lmer))
 
 ### Fisher's alpha ----
 ### Fine
-bac.div.lm <- lm(bacterial.fisher.alpha ~ plant.shannon.residuals + PC1.soil + MAP,
-                 #random = ~ 1 | block,
+hist(bac.g$bacterial.fisher.alpha)
+shapiro.test(bac.g$bacterial.fisher.alpha)
+
+bac.div.lmer <- lmer(bacterial.fisher.alpha ~ plant.shannon.residuals + PC1.soil + (1 | block/plot),
                  data = bac.g)
-summary(bac.div.lm)
-hist(bac.div.lm$residuals)
-shapiro.test(bac.div.lm$residuals)
+summary(bac.div.lmer)
+
+hist(bac.div.lmer)
+shapiro.test(residuals(bac.div.lmer))
 
 ggplot(bac.g, aes(x = PC1.soil,
                   y = bacterial.fisher.alpha)) +
-  geom_point(aes(fill = MAP), size = 3, shape = 21, color = 'black') +
+  geom_point(size = 3,  shape = 21, fill = '#905971', color = 'black') +
   geom_smooth(method = "lm", se = FALSE, color = 'darkgrey') +
-  scale_fill_gradient(low = "white", high = "#905971") +  # change colors here
   ylab("Bacterial Fisher's alpha") +
   xlab("PC1 soil (43.4%)") +
   theme_classic() +
@@ -427,15 +473,13 @@ ggplot(bac.g, aes(x = PC1.soil,
         panel.background = element_rect(fill = "transparent", color = NA),
         plot.background = element_rect(fill = "transparent", color = NA),
         panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank()
-  ) -> Fig.2d
-
+        panel.grid.minor = element_blank()) -> Fig.2c
 
 ## NMDS and PERMANOVA: Bacteria ----
 # isolate fungal community data
 bac.comm <- dplyr::select(bac.g, starts_with('Otu'))
 # Remove singletons
-bac.comm <- bac.comm[colSums(bac.comm) > 1]
+bac.comm <- bac.comm[colSums(bac.comm) > 10]
 
 ### PERMANOVA: Jaccard----
 # Constrains permutations to blocks (aka pastures)
@@ -443,7 +487,7 @@ perm <- how(nperm = 199)
 setBlocks(perm) <- with (bac.g, block)
 
 # fine
-bac.jac.adonis <- adonis2(bac.comm ~ PC1.soil * plant.shannon.residuals * MAP + PCNM1,
+bac.jac.adonis <- adonis2(bac.comm ~ PC1.soil * plant.shannon.residuals + PCNM1,
                           method = 'jaccard',
                           by = 'terms',
                           data = bac.g,
@@ -476,10 +520,11 @@ data.scores <- data.frame(NMDS1 = jacc.mds$points[,1],
 # This figure is created using plots from this script (Fig.S6a and S6c), as 
 # well as plots form the 3.analysisWoodyPatches.R script. 
 Fig.S6c <- ggplot() + 
-  geom_point(data = data.scores, aes(x = NMDS1,
-                                     y = NMDS2,
-                                     color = soil,
-                                     shape = inv),
+  geom_point(data = data.scores,
+             aes(x = NMDS1,
+                 y = NMDS2,
+                 color = soil,
+                 shape = inv),
              size = 3) +
   #scale_fill_manual(values = c('darkblue', 'lightblue')) + # for invasion
   scale_color_viridis() +
@@ -494,8 +539,7 @@ Fig.S6c <- ggplot() +
         panel.background = element_rect(fill = "transparent", color = NA),
         plot.background = element_rect(fill = "transparent", color = NA),
         panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank()
-  )
+        panel.grid.minor = element_blank())
 
 ### PERMANOVA: Morisita-Horn ----
 # Constrains permutations to blocks (aka pastures)
@@ -503,7 +547,7 @@ perm <- how(nperm = 199)
 setBlocks(perm) <- with(bac.g, block)
 
 # fine
-bac.horn.adonis <- adonis2(bac.comm ~ PC1.soil * plant.shannon.residuals * MAP + PCNM1,
+bac.horn.adonis <- adonis2(bac.comm ~ PC1.soil * plant.shannon.residuals + PCNM1,
                           method = 'horn',
                           by = 'terms',
                           data = bac.g,
@@ -537,15 +581,15 @@ data.scores <- data.frame(NMDS1 = horn.mds$points[,1],
 ggplot() + 
   geom_point(data = data.scores, aes(x = NMDS1,
                                      y = NMDS2,
-                                     color = soil,
+                                     fill = soil,
                                      shape = inv),
-             size = 3) +
-  #scale_fill_manual(values = c('darkblue', 'lightblue')) + # for invasion
-  scale_color_viridis() +
+             size = 3, color = 'black') +
+  scale_fill_gradient(low = "white", high = "#5A3246") +  
   coord_equal() +
+  scale_shape_manual(values = c(21,24)) +
   theme_classic() +
   labs(shape = '',
-       color = 'Soil PC1') +
+       fill = 'Soil PC1') +
   theme(axis.text = element_text(size = 10,
                                  colour = 'black'),
         axis.title = element_text(size = 12),
@@ -553,17 +597,14 @@ ggplot() +
         panel.background = element_rect(fill = "transparent", color = NA),
         plot.background = element_rect(fill = "transparent", color = NA),
         panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank()
-  ) -> Fig.2f
+        panel.grid.minor = element_blank()) -> Fig.2e
 
-# Generate Figure 2
-((Fig.2a | Fig.2b) /
-  (Fig.2c | Fig.2d) /
-  (Fig.2e | Fig.2f)) +
-    plot_layout(
-    guides = 'keep',
-    widths = c(2,1,1,1,1)
-  ) + 
+# Generate Figure 2 ----
+((Fig.2a) / 
+  (Fig.2b | Fig.2c) /
+  (Fig.2d | Fig.2e)) +
+    plot_layout(heights = c(1.3, 1, 1),
+                guides = 'collect') + 
   plot_annotation(tag_levels = "a") -> Fig.2
 
 ggsave("figures/Figure2.jpg",
@@ -572,55 +613,51 @@ ggsave("figures/Figure2.jpg",
        device = 'jpg',
        dpi = 600)
 
-#--------------------------------------------------------------#
 # 4. Structural equation model ----
-#--------------------------------------------------------------#
 
 ## Read in data from above ----
 sem.data <- read.csv('data/data.SEM.Grassland.csv')
 
+# Scale continuous variables prior to analysis
+sem.data.scaled <- sem.data
+
+vars <- c("plant.shannon",
+          "PC1.soil",
+          "bacterial.fisher.alpha",
+          "horn.b.nmds1",
+          "jacc.f.nmds1")
+
+sem.data.scaled[vars] <- lapply(sem.data.scaled[vars], scale)
+
 ## Define the model ----
 sem_model_grassland <- '
-  # Soil affected by plants
-  PC1.soil ~ a * plant.shannon
+# Plant diversity affects soil
+PC1.soil ~ a*plant.shannon
 
-  # Microbial diversity
-  fungal.spec.richness ~ b * PC1.soil
-  bacterial.fisher.alpha ~ c * PC1.soil + d * MAP
+# Soil affects bacteria
+bacterial.fisher.alpha ~ b*PC1.soil
 
-  # Community dissimilarity (NMDS1)
-  jacc.f.nmds1 ~ e * PC1.soil + f * MAP + g * plant.shannon + h * PCNM1
-  horn.b.nmds1 ~ i * PC1.soil + j * MAP + k * plant.shannon + l * PCNM1
+# Soil and plants affect bacterial community
+horn.b.nmds1 ~ c*PC1.soil + d*plant.shannon
 
-  # -----------------------
-  # Nuanced Indirect Effects
-  # -----------------------
+# Soil and plants affect fungal community
+jacc.f.nmds1 ~ e*PC1.soil + f*plant.shannon
 
-  # Effects from plant.shannon
-  indirect_plant_on_fungal_div := a * b     # plant → soil → fungal richness
-  indirect_plant_on_bact_div := a * c       # plant → soil → bacterial diversity
-  indirect_plant_on_jacc := a * e + g       # plant → soil + direct → Jaccard
-  indirect_plant_on_horn := a * i + k       # plant → soil + direct → Horn
+# indirect effects
+indirect_bacteria := a*b
 
-  # Effects from MAP
-  indirect_MAP_on_bact_div := d               # direct only
-  indirect_MAP_on_jacc := f                   # direct only
-  indirect_MAP_on_horn := j                   # direct only
+# residual covariance
+horn.b.nmds1 ~~ jacc.f.nmds1
 
-  # Spatial effects (if meaningful to track)
-  spatial_on_jacc := h
-  spatial_on_horn := l
 '
 
 ## Fit the model ----
-fit <- sem(sem_model_grassland, data = sem.data)
+fit <- sem(sem_model_grassland, data = sem.data.scaled)
 summary(fit, fit.measures = TRUE, standardized = TRUE, rsquare = TRUE)
 
 # inspect residuals
 residuals(fit, type = "standardized")
 
-# Check modification indices
-modindices(fit, sort. = TRUE, minimum.value = 3.84)
 
 ## Visualize SEM ----
 graph_sem(fit,
@@ -630,9 +667,6 @@ graph_sem(fit,
 labels = list(#invasion = "Invasion",
            plant.shannon = "Plant diversity",
            PC1.soil = "Soil PC1",
-           MAP = "MAP",
-           PCNM1 = "Geographical\ndistance",
-           fungal.spec.richness = "Fungal OTU richenss",
            bacterial.fisher.alpha = "Bacterial diversity",
            jacc.f.nmds1 = "Fungal\ncomm. composition",
            horn.b.nmds1 = "Bacterial\ncomm. composition")

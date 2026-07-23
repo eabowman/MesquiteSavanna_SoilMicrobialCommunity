@@ -9,6 +9,12 @@ library(patchwork)
 # install.packages('raster')
 library(raster)
 
+# install.packages('ggrepel')
+library(ggrepel)
+
+# install.packages("viridis")
+library("viridis")  
+
 # For analyses ----
 # install.packages('tidyverse')
 library(tidyverse)
@@ -22,7 +28,10 @@ library(nlme)
 # install.packages('devtools')
 library(devtools)
 
+# install.packages('lmerTest')
 library(lmerTest)
+
+# install.packages('Hmisc')
 
 ## SEM analyses -----
 # install.packages("lavaan")
@@ -30,3 +39,7 @@ library(lavaan)
 
 # install.packages('lavaanPlot')
 library(lavaanPlot)
+
+# install.packages('tidySEM')
+library(tidySEM)
+

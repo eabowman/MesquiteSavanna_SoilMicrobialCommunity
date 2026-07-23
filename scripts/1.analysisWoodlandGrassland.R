@@ -45,11 +45,20 @@ tolower(soil.data$invasion) -> soil.data$invasion
 tolower(soil.data$disturbance) -> soil.data$disturbance
 tolower(soil.data$vegetation.type) -> soil.data$vegetation.type
 
+# Change format of plot to a plot number
+# Remove the first character (block number)
+plot_code <- substring(soil.data$Plot_ind, 2)
+
+# Convert treatments to numbers
+soil.data$plot_num <- as.integer(factor(plot_code,
+                                       levels = c("A", "B", "C", "D",
+                                                  "E", "F", "G", "H")))
+
 ## Import plant community data ----
 plant.data <- read.csv('data/plant.comm.sxs.csv')
 
 # Isolate community data
-plant.comm <- plant.data[8:length(plant.data)]
+plant.comm <- plant.data[9:length(plant.data)]
 rownames(plant.comm) <- plant.data$sample
 
 # Remove Thatch and Bare from community data
@@ -63,15 +72,22 @@ plant.data$invsimpson.div <- diversity(plant.comm, index = 'invsimpson')
 ## Import diversity data ----
 div.data <- read.csv('data/data.diversity.Overall.csv')
 
+# Change plot from block + treatment to just a plot number
+# Remove the first character (block number)
+plot_code <- substring(div.data$plot, 2)
+
+# Convert treatments to numbers
+div.data$plot_num <- as.integer(factor(plot_code,
+                                       levels = c("DGN", "DMN", "UGN", "UMN",
+                                                  "DGL", "DML", "UGL", "UML")))
+
 ## Import fungal data ----
 fung.data <- read.csv('data/data.fungal.Overall.csv')
 
 ## Import bacterial data ----
 bac.data <- read.csv('data/data.bacterial.Overall.csv')
 
-#--------------------------------------------------------------#
 # 1. Soil traits ----
-#--------------------------------------------------------------#
 
 # make block a categorical variable
 soil.data$block <- factor(soil.data$block)
@@ -97,14 +113,16 @@ soil.data %>%
 shapiro.test(soil.beta$log.beta)
 
 # ANOVA
-beta.lm <- lm(log.beta ~ vegetation.type * invasion * disturbance,
+beta.lmer <- lmer(log.beta ~ vegetation.type * invasion * disturbance + (1 | block/plot_num),
                 data = soil.beta)
-beta.anova <- anova(beta.lm)
+anova(beta.lmer)
+
+plot(beta.lmer)
 
 # plot
-Fig.1b <- ggplot(soil.beta, aes(x = vegetation.type,
-                                   y = Beta_umolgSOC.1h.1,
-                                   fill = vegetation.type)) +
+ggplot(soil.beta, aes(x = vegetation.type,
+                      y = Beta_umolgSOC.1h.1,
+                      fill = vegetation.type)) +
   geom_boxplot(width = 0.25) +
   # geom_point(size = 1, color = 'grey') +
   # facet_grid(. ~ Invasion) +
@@ -125,8 +143,7 @@ Fig.1b <- ggplot(soil.beta, aes(x = vegetation.type,
         panel.background = element_rect(fill = "transparent", color = NA),
         plot.background = element_rect(fill = "transparent", color = NA),
         panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank()
-  )
+        panel.grid.minor = element_blank()) -> Fig.1b
 
 ### Nag ----
 mutate(soil.data, cube.root.nag = (Nag_umolgSOC.1h.1)^(1/3)) -> nag.soil
@@ -136,14 +153,14 @@ shapiro.test(nag.soil$cube.root.nag)
 hist(nag.soil$cube.root.nag)
 
 # ANOVA
-nag.lm <- lm(cube.root.nag ~ vegetation.type * invasion * disturbance,
+nag.lmer <- lmer(cube.root.nag ~ vegetation.type * invasion * disturbance + (1 | block/plot_num),
                 data = nag.soil)
-nag.anova <- anova(nag.lm)
+anova(nag.lmer)
 
 # plot
-Fig.1c <- ggplot(nag.soil, aes(x = vegetation.type,
-                                   y = Nag_umolgSOC.1h.1,
-                                 fill = vegetation.type)) +
+ggplot(nag.soil, aes(x = vegetation.type,
+                     y = Nag_umolgSOC.1h.1,
+                     fill = vegetation.type)) +
   geom_boxplot(width = 0.25) +
   # geom_point(size = 1, color = 'grey') +
   # ylim(0, 1500) +
@@ -164,8 +181,7 @@ Fig.1c <- ggplot(nag.soil, aes(x = vegetation.type,
         panel.background = element_rect(fill = "transparent", color = NA),
         plot.background = element_rect(fill = "transparent", color = NA),
         panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank()
-  )
+        panel.grid.minor = element_blank()) -> Fig.1c
 
 ### Phosphatase ----
 mutate(soil.data,
@@ -175,16 +191,16 @@ mutate(soil.data,
 shapiro.test(phos.soil$cube.root.phos)
 hist(phos.soil$cube.root.phos)
 
-phos.lm <- lm(cube.root.phos ~ vegetation.type * invasion * disturbance,
+phos.lmer <- lmer(cube.root.phos ~ vegetation.type * invasion * disturbance + (1 | block/plot_num),
                 data = phos.soil)
-phos.anova <- anova(phos.lm)
+anova(phos.lmer)
 
-plot(phos.lm)
+plot(phos.lmer)
 
 # plot
-Fig.1d <- ggplot(phos.soil, aes(x = vegetation.type,
-                                   y = Phos_umolgSOC.1h.1,
-                                   fill = vegetation.type)) +
+ggplot(phos.soil, aes(x = vegetation.type,
+                      y = Phos_umolgSOC.1h.1,
+                      fill = vegetation.type)) +
   geom_boxplot(width = 0.25) +
   # geom_point(size = 1, color = 'grey') +
   xlab('') +
@@ -204,9 +220,7 @@ Fig.1d <- ggplot(phos.soil, aes(x = vegetation.type,
         panel.background = element_rect(fill = "transparent", color = NA),
         plot.background = element_rect(fill = "transparent", color = NA),
         panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank()
-  )
-
+        panel.grid.minor = element_blank()) -> Fig.1d
 
 ## Nutrients and pH -----
 
@@ -242,16 +256,20 @@ pca.soil.plot <- as.data.frame(pca.soil$x)
 cbind(sample = soil.data$sample,
       pca.soil.plot, disturbance = soil.data$disturbance,
       invasion = soil.data$invasion,
-      vegetation.type = soil.data$vegetation.type) -> pca.soil.plot
+      vegetation.type = soil.data$vegetation.type,
+      block = soil.data$block,
+      plot_num = soil.data$plot_num) -> pca.soil.plot
 
 # assess how soil traits are influenced by veg. type, inv., and dist.
 # PC1
-lm.pc1 <- lm(PC1 ~ vegetation.type * invasion * disturbance, data = pca.soil.plot)
-anova(lm.pc1)
+lmer.pc1 <- lmer(PC1 ~ vegetation.type * invasion * disturbance + (1 | block/plot_num),
+                 data = pca.soil.plot)
+anova(lmer.pc1)
 
 # PC2
-lm.pc2 <- lm(PC2 ~ vegetation.type * invasion * disturbance, data = pca.soil.plot)
-anova(lm.pc2)
+lmer.pc2 <- lmer(PC2 ~ vegetation.type * invasion * disturbance + (1 | block/plot_num),
+                 data = pca.soil.plot)
+anova(lmer.pc2)
 
 # Extract loadings for PC1 and PC2
 loadings <- as.data.frame(pca.soil$rotation[, 1:2])
@@ -309,8 +327,7 @@ ggplot(pca.soil.plot,
         panel.background = element_rect(fill = "transparent", color = NA),
         plot.background = element_rect(fill = "transparent", color = NA),
         panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank()
-  ) -> Fig.1a
+        panel.grid.minor = element_blank()) -> Fig.1a
 
 
 #### Plot: Invasion ----
@@ -345,6 +362,7 @@ ggplot(pca.soil.plot,
                            point.padding = 0.2,
                            segment.color = "darkred",
                            inherit.aes = F) +
+  labs(fill = 'Invasion') +
   theme_classic() +
   xlab("PC1 (55.9%)") +
   ylab("PC2 (13.6%)") +
@@ -388,6 +406,7 @@ ggplot(pca.soil.plot,
                            segment.color = "darkred",
                            inherit.aes = F) +
   theme_classic() +
+  labs(fill = 'Disturbance') +
   xlab("PC1 (55.9%)") +
   ylab("PC2 (13.6%)") +
   theme(axis.text = element_text(size = 12, color = 'black'),
@@ -403,7 +422,7 @@ pca.soil.plot %>%
   dplyr::select(PC1, PC2, disturbance, invasion, vegetation.type) -> pca.soil.plot
 
 # Create the box plot
-Fig.S4c <- ggplot(pca.soil.plot, aes(x = vegetation.type,
+ggplot(pca.soil.plot, aes(x = vegetation.type,
                           y = PC1,
                           fill = vegetation.type)) +
   geom_boxplot(width = 0.5) +
@@ -419,11 +438,11 @@ Fig.S4c <- ggplot(pca.soil.plot, aes(x = vegetation.type,
         strip.text = element_text(size = 12),
         strip.background = element_rect(color = 'white',
                                         fill = 'white'),
-        legend.position = 'none')
+        legend.position = 'none') -> Fig.S4c
 
-Fig.S4d <- ggplot(pca.soil.plot, aes(x = invasion,
-                                      y = PC1,
-                                      fill = invasion)) +
+ggplot(pca.soil.plot, aes(x = invasion, 
+                          y = PC1, 
+                          fill = invasion)) +
   geom_boxplot(width = 0.5) +
   theme_classic() +
   scale_fill_manual(values = c("#4E84C4", "#293352")) +
@@ -437,11 +456,11 @@ Fig.S4d <- ggplot(pca.soil.plot, aes(x = invasion,
         strip.text = element_text(size = 12),
         strip.background = element_rect(color = 'white',
                                         fill = 'white'),
-        legend.position = 'none')
+        legend.position = 'none') -> Fig.S4d
 
-Fig.S4e <- ggplot(pca.soil.plot, aes(x = disturbance,
-                                      y = PC1,
-                                      fill = disturbance)) +
+ggplot(pca.soil.plot, aes(x = disturbance,
+                          y = PC1,
+                          fill = disturbance)) +
   geom_boxplot(width = 0.5) +
   theme_classic() +
   scale_fill_manual(values = c("#D1D0DE","#636D97")) +
@@ -455,9 +474,9 @@ Fig.S4e <- ggplot(pca.soil.plot, aes(x = disturbance,
         strip.text = element_text(size = 12),
         strip.background = element_rect(color = 'white',
                                         fill = 'white'),
-        legend.position = 'none')
+        legend.position = 'none') -> Fig.S4e
 
-# Generate Appendix S2: Figure S4
+# Generate Appendix S2: Figure S4 ----
 (Fig.S4a | Fig.S4b) /
   (Fig.S4c | Fig.S4d | Fig.S4e) +
     plot_layout(
@@ -472,9 +491,7 @@ ggsave("figures/FigureS4.jpg",
        device = 'jpg',
        dpi = 600)
 
-#--------------------------------------------------------------#
 # 2. Fungi ----
-#--------------------------------------------------------------#
 
 ## Species richness and diversity ----
 
@@ -512,11 +529,11 @@ div.data %>%
 hist(div.data$fungal.spec.richness)
 shapiro.test(div.data$fungal.spec.richness)
 
-fung.sr.lme <- lm(fungal.spec.richness ~ vegetation.type * invasion * disturbance,
-                  # random = ~ 1 | block,
+fung.sr.lmer <- lmer(fungal.spec.richness ~ vegetation.type * invasion * disturbance + (1| block/plot_num),
                  data = div.data)
-anova(fung.sr.lme)
-hist(fung.sr.lme$residuals)
+anova(fung.sr.lmer)
+
+plot(fung.sr.lmer)
 
 ggplot(div.data,
        aes(x = vegetation.type,
@@ -542,11 +559,11 @@ ggplot(div.data,
 hist(div.data$fungal.fisher.alpha)
 shapiro.test(div.data$fungal.fisher.alpha)
 
-fung.div.lme <- lm(fungal.fisher.alpha ~ vegetation.type * invasion * disturbance,
-                  # random = ~ 1 | block,
+fung.div.lmer <- lmer(fungal.fisher.alpha ~ vegetation.type * invasion * disturbance + (1 | block/plot_num),
                  data = div.data)
-anova(fung.div.lme)
-hist(fung.div.lme$residuals)
+anova(fung.div.lmer)
+
+plot(fung.div.lmer)
 
 ggplot(div.data,
        aes(x = vegetation.type,
@@ -565,37 +582,7 @@ ggplot(div.data,
         axis.title = element_text(size = 14),
         strip.text.x = element_text(size = 12),
         strip.background = element_blank(),
-        legend.position = 'none') -> Fig.S5a
-
-## Species richness and diversity as a function of soil traits ----
-# How to do this as all soil traits are correlated?
-# Should I use a PCA of a few or all traits
-
-div.data %>%
-  # dplyr::select(sample, Beta_umolgSOC.1h.1, Phos_umolgSOC.1h.1, Nag_umolgSOC.1h.1) %>%
-  # full_join(div.data) %>%
-  mutate(log.beta = log(Beta_umolgSOC.1h.1),
-         cube.root.phos = (Phos_umolgSOC.1h.1)^(1/3),
-         cube.root.nag = (Nag_umolgSOC.1h.1)^(1/3)) -> div.enzyme
-
-# Species richness
-enzyme.lm <- lm(fungal.spec.richness ~ log.beta * vegetation.type, 
-                 # random = ~ 1 | block,
-                 data = div.enzyme)
-
-summary(enzyme.lm)
-plot(enzyme.lm)
-hist(enzyme.lm$residuals)
-
-shapiro.test(enzyme.lm$residuals)
-
-# Fisher's alpha
-# Check this out; originally lme and perumtations randomixed by block as abov.
-enzyme.lm <- lm(fungal.fisher.alpha ~ cube.root.nag,
-                data = div.enzyme)
-
-summary(enzyme.lm)
-plot(enzyme.lm)
+        legend.position = 'none')
 
 ## NMDS and PERMANOVA: Fungi ----
 # isolate fungal community data
@@ -702,9 +689,8 @@ ggplot() +
         axis.title = element_text(size = 14),
         legend.position = 'none') -> Fig.S5d
 
-#--------------------------------------------------------------#
+
 # 3. Bacteria ----
-#--------------------------------------------------------------#
 
 ## Species richness and diversity ----
 ### Summary data ----
@@ -736,34 +722,49 @@ div.data %>%
             bac.div.mean = mean(bacterial.fisher.alpha),
             bac.div.sd = sd(bacterial.fisher.alpha)) -> dist.bac
 
-filter(div.data, bacterial.spec.richness > 500) -> bac.sr.data
-
-hist(bac.sr.data$bacterial.spec.richness)
-shapiro.test(bac.sr.data$bacterial.spec.richness)
+hist(div.data$bacterial.spec.richness)
+shapiro.test(div.data$bacterial.spec.richness)
   
 ### Species richness: normal ----
-bac.sr.lme <- lm(bacterial.spec.richness ~ vegetation.type * invasion * disturbance,
-                  # random = ~ 1 | block,
-                 data = bac.sr.data)
-anova(bac.sr.lme)
- 
-### Fisher's alpha ----
-hist(bac.sr.data$bacterial.fisher.alpha)
-shapiro.test(bac.sr.data$bacterial.fisher.alpha)
+bac.sr.lmer <- lmer(bacterial.spec.richness ~ vegetation.type * invasion * disturbance + (1 | block/plot_num),
+                 data = div.data)
+anova(bac.sr.lmer)
 
-bac.div.lme <- lm(bacterial.fisher.alpha ~ vegetation.type * invasion * disturbance,
-                  # random = ~ 1 | block,
-                 data = bac.sr.data)
-anova(bac.div.lme)
-
-# check residuals
-histogram(residuals(bac.div.lme))
+plot(bac.sr.lmer)
 
 # plot
-Fig.S5b <- ggplot(div.data,
-                       aes(x = vegetation.type,
-                           y = bacterial.fisher.alpha,
-                           fill = vegetation.type)) +
+ggplot(div.data, aes(x = disturbance,
+                     y = bacterial.spec.richness,
+                     fill = disturbance)) +
+  geom_boxplot(width = 0.25) +
+  theme_classic() +
+  scale_fill_manual(values = c("#D1D0DE","#636D97")) +
+  xlab("") +
+  facet_grid(. ~ invasion) +
+  ylab("Bacterial OTU richness") +
+  theme(axis.text.y = element_text(size = 12, color = 'black'),
+        axis.text.x = element_text(size = 12, color = 'black',
+                                   angle = 45, hjust = 1),
+        axis.title = element_text(size = 14),
+        strip.background = element_blank(),
+        strip.text = element_text(size = 12),
+        legend.position = 'none') -> Fig.S5a
+ 
+### Fisher's alpha ----
+hist(div.data$bacterial.fisher.alpha)
+shapiro.test(div.data$bacterial.fisher.alpha)
+
+bac.div.lmer <- lmer(bacterial.fisher.alpha ~ vegetation.type * invasion * disturbance + (1 | block/plot_num),
+                 data = div.data)
+anova(bac.div.lmer)
+
+# check residuals
+plot(bac.div.lmer)
+
+# plot
+ggplot(div.data, aes(x = vegetation.type,
+                     y = bacterial.fisher.alpha,
+                     fill = vegetation.type)) +
   geom_boxplot(width = 0.25) +
   theme_classic() +
   scale_fill_manual(values = c("#905971", "#F1BB83")) +
@@ -775,43 +776,7 @@ Fig.S5b <- ggplot(div.data,
                                    angle = 45, hjust = 1),
         axis.title = element_text(size = 14),
         strip.background = element_blank(),
-        legend.position = 'none')
-
-Fig.S5c <- ggplot(bac.sr.data,
-                       aes(x = invasion,
-                           y = bacterial.fisher.alpha,
-                           fill = invasion)) +
-  geom_boxplot(width = 0.25) +
-  theme_classic() +
-  scale_fill_manual(values = c("#8DB6AB", "#EDE6DE")) +
-  xlab("") +
-  facet_grid(. ~ disturbance) +
-  ylab("Bacterial Fisher's alpha") +
-  theme(axis.text.y = element_text(size = 12, color = 'black'),
-        axis.text.x = element_text(size = 12, color = 'black',
-                                   angle = 45, hjust = 1),
-        axis.title = element_text(size = 14),
-        strip.text.x = element_text(size = 12),
-        strip.background = element_blank(),
-        legend.position = 'none')
-
-
-## Species richness and diversity as a function of soil traits ----
-# Species richness
-enzyme.lm <- lme(bacterial.spec.richness ~ log.beta * vegetation.type, 
-                 random = ~ 1 | block,
-                 data = div.enzyme)
-
-summary(enzyme.lm)
-plot(enzyme.lm)
-
-# Fisher's alpha
-enzyme.lm <- lme(bacterial.fisher.alpha ~ log.beta * vegetation.type,
-                 random = ~ 1 | block,
-                 data = div.enzyme)
-
-summary(enzyme.lm)
-plot(enzyme.lm)
+        legend.position = 'none') -> Fig.S5b 
 
 ## NMDS and PERMANOVA: Bacteria ----
 # isolate bacterial community data
@@ -874,8 +839,8 @@ Fig.S5e <- ggplot() +
         panel.grid.minor = element_blank()
   )
 
-# Generate Appendix S2: Figure S5
-(Fig.S5a | Fig.S5b | Fig.S5c) /
+# Generate Appendix S2: Figure S5 ----
+(Fig.S5a | Fig.S5b) /
   (Fig.S5d | Fig.S5e) +
     plot_layout(
       heights = c(1.5,2),
@@ -947,9 +912,8 @@ Fig.1f <- ggplot() +
         panel.grid.minor = element_blank()
   )
 
-#--------------------------------------------------------------#
+
 # 4. Comparison of two communities ----
-#--------------------------------------------------------------#
 
 # Distance matrices
 jac.f.dist <- vegdist(fung.comm,
@@ -1050,7 +1014,7 @@ merged.dist %>%
         panel.grid.minor = element_blank()) +
   coord_cartesian(clip = "off") -> Fig.1g
 
-# Generate Figure 1
+# Generate Figure 1 ----
 top.row <- Fig.1a  +
     theme(axis.title.x = element_text(margin = margin(t = -30, 
                                                       unit = "pt"))) | 

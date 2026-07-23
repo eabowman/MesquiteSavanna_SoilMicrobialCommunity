@@ -23,9 +23,7 @@ qiime.data <- read.csv('data/BacterialTaxonomy_Qiime.csv',
 #                             'BacterialNCBI_zotu99_TaxonomySummary_genus.csv'))
 
 
-#--------------------------------------------------------------#
 # Fungi ----
-#--------------------------------------------------------------#
 
 ### Create taxonomic dataframe
 fung.soil.data %>%
@@ -379,9 +377,8 @@ ggplot(glomero.data, aes(x = vegetation.type,
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank()) -> Fig.5f
 
-#--------------------------------------------------------------#
+
 # Bacteria ----
-#--------------------------------------------------------------#
 
 ### Create taxonomic dataframe
 bac.soil.data %>%
@@ -684,7 +681,7 @@ ggplot(cyano.data, aes(x = vegetation.type,
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank()) -> Fig.5k
 
-# Generate Figure 5
+# Generate Figure 5 -----
 (# ---- Top row (6 plots) ----
   Fig.5a | Fig.5b | Fig.5c | Fig.5d | Fig.5e | Fig.5f) /
 (# ---- Bottom row (5 plots + spacer) ----

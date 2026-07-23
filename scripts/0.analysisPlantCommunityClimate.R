@@ -14,10 +14,9 @@ field.data <- read.csv('data/field.data_climate.csv')
 
 # Restructure plant community data to isolate Megathyrsis maximus cover ----
 pl.data %>%
+  mutate(Meg.max = Megathyrsus.maximus) %>%
   dplyr::select(disturbance, vegetation, invasion,
-                replicate, block, Megathyrsus.maximus) %>%
-  group_by(disturbance, vegetation, invasion, replicate,  block) %>%
-  summarise(Meg.max = Megathyrsus.maximus) -> mm.data
+                replicate, block, plot, Meg.max) -> mm.data
 
 mm.data$invasion <- factor(mm.data$invasion,
                            levels = c('invaded', 'uninvaded'),
@@ -44,9 +43,7 @@ pl.data$vegetation <- factor(pl.data$vegetation,
                              levels = c('grassland', 'motte'),
                              labels = c('Grassland', 'Woody patch'))
 
-#--------------------------------------------------------------#
 # 1. Climate ----
-#--------------------------------------------------------------#
 
 ## MAP ----
 map.lm <- lm(MAP ~ block, data = field.data)
@@ -99,9 +96,7 @@ anova(mat.lm)
 
 max(field.data$MAT) - min(field.data$MAT)
 
-#--------------------------------------------------------------#
 # 2. Guinea grass cover ----
-#--------------------------------------------------------------#
 
 ## A. Distribution of Guinea grass cover ----
 ggplot(mm.data, aes(x = Meg.max,
@@ -115,7 +110,7 @@ ggplot(mm.data, aes(x = Meg.max,
   theme(axis.title = element_text(size = 14),
         axis.text = element_text(size = 12,
                                  color = 'black'),
-        legend.position = 'right') -> Fig.S1a
+        legend.position = 'right') -> Fig.S2a
 
 ## B. Invaded sites only ----
 # Isolate invaded site data
@@ -145,10 +140,10 @@ ggplot(mm.inv.data, aes(x = block,
                                  color = 'black'))
 
 ### assess cover as a function of disturbance and plant community to assess variation  ----
-GG.lm <- lme(Meg.max ~ disturbance * vegetation, 
-             random = ~ 1| block,
+GG.lmer <- lmer(Meg.max ~ vegetation * disturbance + (1 | block/plot),
              data = mm.inv.data)
-GG.anova <- anova(GG.lm)
+anova(GG.lmer)
+
 # Overall higher percent cover of Guinea grass in grasslands
 mm.inv.data %>%
   group_by(vegetation) %>%
@@ -170,45 +165,47 @@ ggplot(mm.inv.data, aes(x = vegetation,
                                  color = 'black'),
         axis.text.x = element_text(size = 12,
                                    color = 'black'),
-        legend.position = 'right') -> Fig.S1b
+        legend.position = 'right') -> Fig.S2b
 
 # Generate Appendix S2: Fig. S1
-Fig.S1a +
-  Fig.S1b +
+Fig.S2a +
+  Fig.S2b +
     plot_layout(
     nrow = 1,
     ncol = 2,
     guides = 'collect',
-    heights = c(1,1)
-  ) + 
-  plot_annotation(tag_levels = "a") -> Fig.S1
+    heights = c(1,1)) + 
+  plot_annotation(tag_levels = "a") -> Fig.S2
 
-ggsave("figures/FigureS1.jpg",
-       plot = Fig.S1,
+ggsave("figures/FigureS2.jpg",
+       plot = Fig.S2,
        width = 8, height = 5,
        device = 'jpg',
        dpi = 600)
 
-#--------------------------------------------------------------#
+
 # 3. Plant community ----
-#--------------------------------------------------------------#
+
 ## Plant species richness ------
 # isolate plant community data
-pl.comm <- pl.data[8:length(pl.data)]
+pl.comm <- pl.data[9:length(pl.data)]
 
 # remove bare and thatch columns
 dplyr::select(pl.comm, -Bare, -Thatch) -> pl.comm
 
 # calculate Species richness 
 pl.data$plant.sr <- specnumber(pl.comm)
+hist(log1p(pl.data$plant.sr))
+shapiro.test(log1p(pl.data$plant.sr))
 
-sr.lme <- lme(plant.sr ~ invasion * disturbance * vegetation, 
-               random = ~ 1| block,
+sr.lmer <- lmer(plant.sr ~ invasion * disturbance * vegetation + (1 | block/plot),
                data = pl.data)
-anova(sr.lme)
+anova(sr.lmer)
+
+plot(sr.lmer)
 
 # assess residuals of model
-plot(sr.lme)
+plot(sr.lmer)
 
 # Mean species richness based on invasion
 pl.data %>%
@@ -229,12 +226,11 @@ pl.data %>%
             sd.sr = sd(plant.sr))
 
 # Plot
-ggplot(pl.data, aes(x = invasion,
+ggplot(pl.data, aes(x = vegetation,
                     y = plant.sr,
-                    fill = invasion)) +
+                    fill = vegetation)) +
   geom_boxplot(width= 0.5) +
-  facet_grid(. ~ vegetation) +
-  scale_fill_manual(values = c("#8DB6AB", "#EDE6DE")) +
+  scale_fill_manual(values = c("#905971", "#F1BB83")) +
   ylab("Plant species richness") +
   xlab('') +
   theme_classic() +
@@ -256,7 +252,7 @@ ggplot(pl.data, aes(x = invasion,
                     y = plant.sr,
                     fill = invasion)) +
   geom_boxplot(width= 0.5) +
-  facet_grid(. ~ disturbance) +
+  # facet_grid(. ~ disturbance) +
   scale_fill_manual(values = c("#8DB6AB", "#EDE6DE")) +
   ylab("Plant species richness") +
   xlab('') +
@@ -271,7 +267,7 @@ ggplot(pl.data, aes(x = invasion,
         legend.position = 'none',
         strip.text = element_text(size = 10,
                                   color = 'black'),
-        strip.background = element_blank()) -> Fig.S3c
+        strip.background = element_blank()) -> Fig.S3b
 
 
 ## Plant diversity ----
@@ -280,13 +276,12 @@ ggplot(pl.data, aes(x = invasion,
 pl.data$plant.shannon <- diversity(pl.comm, index = 'shannon')
 log1p(pl.data$plant.shannon) -> pl.data$log1p.plant.shannon
 
-div.lme <- lme(log1p.plant.shannon ~ invasion * disturbance * vegetation, 
-               random = ~ 1| block,
+div.lmer <- lmer(log1p.plant.shannon ~ invasion * disturbance * vegetation + (1 | block/ plot), 
                data = pl.data)
-anova(div.lme)
+anova(div.lmer)
 
 # Assess model residuals
-plot(div.lme)
+plot(div.lmer)
 
 # Mean shannon based on invasion
 pl.data %>%
@@ -300,36 +295,12 @@ pl.data %>%
   summarise(mean.sh = mean(plant.shannon),
             sd.sh = sd(plant.shannon))
 
-# Plot
-ggplot(pl.data, aes(x = invasion,
-                    y = plant.shannon,
-                    fill = invasion)) +
-  geom_boxplot(width= 0.5) +
-  facet_grid(. ~ vegetation) +
-  scale_fill_manual(values = c("#8DB6AB", "#EDE6DE")) +
-  ylab("Plant Shannon's diversity") +
-  xlab('') +
-  labs(fill = 'Invasion') +
-  theme_classic() +
-  theme(axis.title = element_text(size = 12),
-        axis.text.y = element_text(size = 10,
-                                 color = 'black'),
-        axis.text.x = element_text(size = 10,
-                                   color = 'black',
-                                   angle = 45,
-                                   hjust = 1),
-        legend.position = 'right',
-        strip.text = element_text(size = 10,
-                                  color = 'black'),
-        strip.background = element_blank()) -> Fig.S3b
-
 # Generate Appendix S2: Fig. S1
 Fig.S3a +
   Fig.S3b +
-  Fig.S3c +
     plot_layout(
     nrow = 1,
-    ncol = 3,
+    ncol = 2,
     guides = 'collect',
     heights = c(1,1,1)
   ) + 
@@ -337,13 +308,13 @@ Fig.S3a +
 
 ggsave("figures/FigureS3.jpg",
        plot = Fig.S3,
-       width = 10, height = 5,
+       width = 6, height = 5,
        device = 'jpg',
        dpi = 600)
 
 ## Multivariate dispersion ----
 # isolate plant community data
-pl.comm <- pl.data[8:length(pl.data)]
+pl.comm <- pl.data[9:length(pl.data)]
 
 # remove bare and thatch columns
 dplyr::select(pl.comm, -Bare, -Thatch) -> pl.comm
