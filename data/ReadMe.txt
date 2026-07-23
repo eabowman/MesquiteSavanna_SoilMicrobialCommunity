@@ -17,12 +17,13 @@ MAP: Mean annual precipitaiton, WorldClim
 plant.comm.sxs.csv
 ------------------
 sample: Sample name
+block: Site
+plot: within each block, each treatment combination.
 treatment: Combination of disturbance, vegetation, and invasion; D = Disturbed, U = undisturbed, G = grassland, M = woody patch, N = Invaded, L = Native
 disturbance: disturbance of site where sample was collected
 vegetation.type: vegetation type of site where sample was collected
 invasion: invasion of site where sample was collected
 replicate: replicate of soil community quadrat sampling
-block: Site
 Species names of plants within quadrat that was sampled. Abundance corresponds to % cover.
 
 soil.data.clean.2023.csv
