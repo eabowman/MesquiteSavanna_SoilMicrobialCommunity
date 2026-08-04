@@ -609,9 +609,7 @@ ggsave("figures/Figure4.jpg",
        device = 'jpg',
        dpi = 600)
 
-#--------------------------------------------------------------#
 # 4. Structural equation modeling ----
-#--------------------------------------------------------------#
 
 ## Read in data from above ----
 sem.data <- read.csv('data/data.SEM.Woodypatch.csv')
@@ -629,7 +627,7 @@ sem.data.scaled[vars] <-
     lapply(sem.data[vars], scale)
 
 ## Define the model ----
-sem_model_woody <- '
+sem_model_woody.v2 <- '
 # Soil
 PC2.soil ~ a * plant.shannon
 
@@ -644,7 +642,9 @@ bacterial.fisher.alpha ~ c * PC2.soil +
 jacc.f.nmds1 ~ e * PC1.soil +
                f * PC2.soil
 
-horn.b.nmds1 ~ g * PC1.soil
+horn.b.nmds1 ~ g * PC1.soil +
+               h * PCNM1
+               
 
 # residual covariance
 jacc.f.nmds1 ~~ horn.b.nmds1
@@ -654,7 +654,7 @@ indirect_phos := b * d
 '
 
 ## Fit the model ----
-fit <- sem(sem_model_woody, data = sem.data.scaled, missing = "ML")
+fit <- sem(sem_model_woody.v2, data = sem.data.scaled, missing = "ML")
 summary(fit, fit.measures = TRUE, standardized = TRUE, rsquare = TRUE)
 
 ## Visualize SEM ----
@@ -677,7 +677,8 @@ labels = list(#invasion = "Invasion",
   log.phos = 'Phosphatase',
   bacterial.fisher.alpha = "Bacterial\ndiversity",
   jacc.f.nmds1 = "Fungal\ncomm. composition",
-  horn.b.nmds1 = "Bacterial\ncomm. composition")
+  horn.b.nmds1 = "Bacterial\ncomm. composition",
+  PCNM1 = 'Geo. distance')
 
 lavaanPlot(model = fit,
            labels = labels,

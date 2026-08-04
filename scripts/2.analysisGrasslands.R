@@ -625,7 +625,8 @@ vars <- c("plant.shannon",
           "PC1.soil",
           "bacterial.fisher.alpha",
           "horn.b.nmds1",
-          "jacc.f.nmds1")
+          "jacc.f.nmds1",
+          "PCNM1")
 
 sem.data.scaled[vars] <- lapply(sem.data.scaled[vars], scale)
 
@@ -669,7 +670,8 @@ labels = list(#invasion = "Invasion",
            PC1.soil = "Soil PC1",
            bacterial.fisher.alpha = "Bacterial diversity",
            jacc.f.nmds1 = "Fungal\ncomm. composition",
-           horn.b.nmds1 = "Bacterial\ncomm. composition")
+           horn.b.nmds1 = "Bacterial\ncomm. composition",
+           PCNM1 = "Geo. distance")
 
 lavaanPlot(model = fit,
            labels = labels,
